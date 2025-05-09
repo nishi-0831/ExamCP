@@ -26,6 +26,7 @@ void Input::KeyStateUpdate()
 		key_up[i] = key_xor & keyBuffOld[i];	//離された瞬間 = (前フレームとkey_xorのAND) 
 	}
 }
+//キーの状態を取得する関数
 
 bool Input::IsKeyUp(int keyCode)
 {

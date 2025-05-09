@@ -4,7 +4,7 @@
 #include "Input.h"
 namespace
 {
-	const float PLAYER_INIT_SPEED = 5.0f; //初期移動速度
+	const float PLAYER_INIT_SPEED = 250.0f; //初期移動速度
 	const int PLAYER_IMAGE_WIDTH = 64; //画像の幅
 	const int PLAYER_IMAGE_HEIGHT = 64; //画像の高さ
 
@@ -35,17 +35,19 @@ Player::~Player()
 
 void Player::Update()
 {
+	float dt = GetDeltaTime(); //フレーム間の時間差を取得
 	if (Input::IsKeepKeyDown(KEY_INPUT_LEFT))
 	{
-		x_ -= speed_ * GetDeltaTime();
+		x_ -= speed_ * dt;
 	}
 	if (Input::IsKeepKeyDown(KEY_INPUT_RIGHT))
 	{
-		x_ += speed_ * GetDeltaTime();
+		x_ += speed_ * dt;
 	}
 }
 
 void Player::Draw()
 {
+	//プレイヤーの画像を描画(画像の原点は左上)
 	DrawExtendGraph(x_,y_, x_ + PLAYER_IMAGE_WIDTH, y_ + PLAYER_IMAGE_HEIGHT, hImage_, TRUE);
 }
