@@ -1,8 +1,8 @@
 #include "DxLib.h"
-#include "Player.h"
 #include "global.h"
 #include "Input.h"
-#include "Enemy.h"
+#include <vector>
+#include "Stage.h"
 
 namespace
 {
@@ -48,13 +48,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	crrTime = GetNowCount();
 	prevTime = GetNowCount();
 	
-	Player* player = new Player();
-	Enemy* enemy = new Enemy[10];
-
-	for (int i = 0;i < 10;i++)
-	{
-		enemy[i].SetPos(100 + i * 50, 100);
-	}
+	Stage* stage = new Stage();
 
 	while (true)
 	{
@@ -66,19 +60,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		float deltaTime = (crrTime - prevTime) / 1000.0f;
 		gDeltaTime = deltaTime;
 		prevTime = crrTime;
-		//Ç±Ç±Ç…Ç‚ÇËÇΩÇ¢èàóùÇèëÇ≠
-		player->Update();
-		player->Draw();
-
-		for (int i = 0;i < 10;i++)
-		{
-			//(enemy + i)->Update();
-			//(enemy + i)->Draw();
-			enemy[i].Update();
-			enemy[i].Draw();
-		}
-		enemy->Update();
-		enemy->Draw();
+		//Ç±Ç±Ç…Ç‚ÇËÇΩÇ¢èàóùÇèëÇ≠(Ç±Ç±Ç©ÇÁ)
+		stage->Update();
+		stage->Draw();
+		//Ç±Ç±Ç…Ç‚ÇËÇΩÇ¢èàóùÇèëÇ≠(Ç±Ç±Ç‹Ç≈)
 
 		ScreenFlip();
 		WaitTimer(16);
