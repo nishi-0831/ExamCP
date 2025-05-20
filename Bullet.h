@@ -7,7 +7,7 @@ private:
 	int hImage_;
 	float x_, y_;
 	float speed_;
-	bool isAlive_;
+	
 	int isize_x, isize_y;//弾の表示サイズ、画像のサイズ
 public:
 	Bullet();

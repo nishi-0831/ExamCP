@@ -14,6 +14,9 @@ namespace
 
 	const float PLAYER_INIT_X = WIN_WIDTH / 2 - PLAYER_IMAGE_WIDTH/2; 
 	const float PLAYER_INIT_Y = WIN_HEIGHT - PLAYER_IMAGE_HEIGHT - PLAYER_BASE_MERGIN;
+
+	const int BULLET_IMAGE_MARGIN = 17;
+	const float BULLET_INTERVAL = 0.2f; //’e‚ÌŠÔŠu
 }
 Player::Player()
 //ƒnƒ“ƒhƒ‹‚Íˆê”Ê‚É³‚Ì®”
@@ -46,9 +49,21 @@ void Player::Update()
 	{
 		x_ += speed_ * dt;
 	}
+
+	static float bulletTimer = 0.0f;
+	if (bulletTimer > 0.0f)
+	{
+		bulletTimer -= dt;
+	}
+	
 	if (Input::IsKeyDown(KEY_INPUT_SPACE))
 	{
-		new Bullet(x_,y_);
+		if (bulletTimer <= 0.0f)
+		{
+			new Bullet(x_ + PLAYER_IMAGE_HEIGHT / 2, y_);
+			bulletTimer = BULLET_INTERVAL;
+		}
+		
 	}
 }
 
