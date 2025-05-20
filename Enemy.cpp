@@ -38,6 +38,7 @@ Enemy::Enemy(int id, ETYPE type)
 	x_ = ENEMY_INIT_X;
 	y_ = ENEMY_INIT_Y;
 	speed_ = ENEMY_INIT_SPEED;
+	AddGameObject(this);
 	//id‚Ætype‚ğw’è‚³‚ê‚È‚©‚Á‚½‚Æ‚«‚Ìˆ—‚ğ‚±‚±‚É‘‚©‚Ë‚Î(È—ªB‘‚©‚È‚¢)
 }
 Enemy::Enemy()

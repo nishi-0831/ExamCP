@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "global.h"
+#include <vector>
 
 namespace
 {
@@ -16,6 +17,7 @@ namespace
 Stage::Stage()
 	: GameObject() , player_(nullptr)
 {
+	AddGameObject(this);
 	player_ = new Player();
 	enemy_ = std::vector<Enemy*>(ENEMY_NUM);
 	for (int i = 0; i < ENEMY_NUM; i++)
