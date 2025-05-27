@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-
+#include "global.h"
 enum ETYPE
 {
 	ZAKO,MID,KNIGHT,BOSS,MAX_ETYPE
@@ -11,7 +11,8 @@ class Enemy :
 	int hImage_;//“G‚Ì‰æ‘œƒnƒ“ƒhƒ‹
 	float x_, y_;//“G‚ÌÀ•W
 	float speed_;//“G‚ÌˆÚ“®‘¬“x
-	bool isAlive_;//“G‚Ì¶€
+	int dir_;
+	//bool isAlive_;//“G‚Ì¶€
 	int ID_;//“G‚ÌID
 	ETYPE type_;
 public:
@@ -23,5 +24,14 @@ public:
 	void Draw() override;
 	void SetPos(float x, float y) { x_ = x, y_ = y; }
 	void SetID(int id) { ID_ = id; } //“G‚ÌID‚ğƒZƒbƒg
+	
+	bool IsLeftEnd();
+	bool IsRightEnd();
+	void ChangeMoveDirLeft();
+	void ChangeMoveDirRight();
+
+	Rect GetRect() const {
+		return { x_, y_, ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
+	}
 };
 

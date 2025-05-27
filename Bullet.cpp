@@ -15,7 +15,7 @@ namespace
 }
 
 Bullet::Bullet()
-	: GameObject(),hImage_(-1),x_(0),y_(0), speed_(0),isize_x(BULLET_IMAGE_WIDTH),isize_y(BULLET_IMAGE_HEIGHT)
+	: GameObject(),hImage_(-1),x_(0),y_(0), speed_(0),isize_x(BULLET_IMAGE_WIDTH),isize_y(BULLET_IMAGE_HEIGHT),isFired_{false}
 {
 	isAlive_ = true;
  	hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
@@ -39,21 +39,24 @@ Bullet::~Bullet()
 
 void Bullet::Update()
 {
-	float dt = GetDeltaTime();
-	y_ -=  (speed_ * dt);//’e‚ÌˆÚ“®
-	if (y_ < 0 - isize_y)
+	if (isFired_)
 	{
-		isAlive_ = false;//‰æ–ÊŠO‚Éo‚½‚ç’e‚ğÁ‚·
+		float dt = GetDeltaTime();
+		y_ -= (speed_ * dt);//’e‚ÌˆÚ“®
+		if (y_ < 0 - isize_y)
+		{
+			isFired_ = false;
+		}
 	}
 }
 
 void Bullet::Draw()
 {
-	if (isAlive_)
+	if (isFired_)
 	{
 		int centerSizeX = isize_x / 2;
 		int centerSizeY = isize_y / 2;
-		DrawExtendGraph(x_ - centerSizeX, y_ - centerSizeY, x_ + isize_x - centerSizeX, y_ + isize_y - centerSizeY,
+		DrawExtendGraphF(x_ - centerSizeX, y_ - centerSizeY, x_ + isize_x - centerSizeX, y_ + isize_y - centerSizeY,
 			hImage_, TRUE);//’e‚Ì•`‰æ
 	}
 }

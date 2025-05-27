@@ -58,18 +58,21 @@ Stage::~Stage()
 
 void Stage::Update()
 {
-	player_->Update();
-	for (auto& elm : enemy_)
+	if ((*(enemy_.begin()))->IsLeftEnd())
 	{
-		elm->Update();
+		
+	}
+	else if ((*(enemy_.rbegin()))->IsLeftEnd())
+	{
+
 	}
 }
 
 void Stage::Draw()
 {
-	player_->Draw();
+	/*player_->Draw();
 	for (auto& elm : enemy_)
 	{
 		elm->Draw();
-	}
+	}*/
 }
