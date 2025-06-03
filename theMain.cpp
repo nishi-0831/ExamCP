@@ -3,7 +3,7 @@
 #include "Input.h"
 #include <vector>
 #include "Stage.h"
-
+#include "ImGui/imgui_impl_dxlib.hpp"
 namespace
 {
 	const int BGCOLOR[3] = {0,0, 0}; // 背景色
@@ -52,9 +52,23 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	prevTime = GetNowCount();
 	
 	Stage* stage = new Stage();
-
+	SetHookWinProc([](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT /*CALLBACK*/
+		{
+			// DxLibとImGuiのウィンドウプロシージャを両立させる
+			SetUseHookWinProcReturnValue(FALSE);
+			return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
+		});
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());	ImGui_ImplDXlib_Init();
 	while (true)
 	{
+		ImGui_ImplDXlib_NewFrame();
+		ImGui::NewFrame();
+
 		ClearDrawScreen();
 		Input::KeyStateUpdate();
 
@@ -97,6 +111,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 				++it;
 			}
 		}
+		ImGui::EndFrame();
+		ImGui::Render();
+		ImGui_ImplDXlib_RenderDrawData();
+
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 		//ここにやりたい処理を書く(ここまで)
 
 		ScreenFlip();
@@ -106,7 +129,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1)
 			break;
 	}
-
+	ImGui_ImplDXlib_Shutdown();
+	ImGui::DestroyContext();
 	DxLib_End();
 	return 0;
 }

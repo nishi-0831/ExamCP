@@ -20,7 +20,7 @@ namespace
 }
 Player::Player()
 //ハンドルは一般に正の整数
-	:GameObject(), hImage_(-1),  speed_(0)
+	:GameObject(),   speed_(0)
 {
 	imageSize_ = { PLAYER_IMAGE_WIDTH ,PLAYER_IMAGE_HEIGHT };
 	//プレイヤーの画像を読み込む
@@ -37,6 +37,7 @@ Player::Player()
 	for (int i = 0;i < PLAYER_BULLET_NUM;i++)
 	{
 		bullets_.push_back(new Bullet());
+		bullets_.front()->SetFired(false);
 	}
 	AddGameObject(this);
 }
@@ -77,10 +78,11 @@ void Player::Update()
 
 void Player::Draw()
 {
-	Rect rect = GetRect();
-	//Playerの座標の真ん中に画像表示
-	DrawExtendGraphF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, hImage_, TRUE);
-	DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
+	GameObject::Draw();
+	//Rect rect = GetRect();
+	////Playerの座標の真ん中に画像表示
+	//DrawExtendGraphF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, hImage_, TRUE);
+	//DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
 }
 
 
@@ -95,11 +97,10 @@ void Player::Shoot()
 	//		break;//一つ発射したらループを抜ける
 	//	}
 	//}
-
 	Bullet* blt = GetActiveBullet();
 	if (blt != nullptr)
 	{
-		blt->SetPos(x_ + BULLET_IMAGE_MARGIN, y_);
+		blt->SetPos(x_, y_);
 		blt->SetFired(true);
 	}
 }

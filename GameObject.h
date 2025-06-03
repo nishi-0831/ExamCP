@@ -6,12 +6,13 @@ class GameObject
 protected:
 	bool isAlive_;
 	Point imageSize_;
+	int hImage_;
 	float x_,y_;
 public:
 	GameObject();
 	virtual ~GameObject();
 	virtual void Update() = 0;
-	virtual void Draw() = 0;
+	virtual void Draw() ;
 	bool IsAlive() const { return isAlive_; } //ê∂ë∂ämîF
 	void SetActive(bool alive) { isAlive_ = alive; }
 	Rect GetRect();

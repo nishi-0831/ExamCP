@@ -31,7 +31,7 @@ namespace
 }
 
 Enemy::Enemy(int id, ETYPE type)
-	: GameObject(), hImage_(-1),speed_(0), ID_(id),type_(type),dir_(1)
+	: GameObject(), speed_(0), ID_(id),type_(type),dir_(1)
 {
 	imageSize_ = { ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
 	std::string imagePath[MAX_ETYPE] =
@@ -52,11 +52,10 @@ Enemy::Enemy(int id, ETYPE type)
 	y_ = ENEMY_INIT_Y;
 	speed_ = ENEMY_INIT_SPEED;
 	AddGameObject(this);
-	//this->effect = new Animation2D(x_,y_);
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
 }
 Enemy::Enemy()
-	:GameObject(), hImage_(-1),  speed_(0),dir_(1)
+	:GameObject()  ,speed_(0),dir_(1)
 {
 	hImage_ = LoadGraph("Assets\\tiny_ship10.png");
 	if (hImage_ == -1)
@@ -70,10 +69,9 @@ Enemy::Enemy()
 
 Enemy::~Enemy()
 {
-	SetAlive(false);
 	this->effect = new Animation2D(x_, y_);
+	SetAlive(false);
 	AddGameObject(this->effect);
-	//delete this->effect;
 	if (hImage_ != -1)
 	{
 		DeleteGraph(hImage_);
@@ -85,49 +83,28 @@ void Enemy::Update()
 	float dt = GetDeltaTime();
 	
 	x_ += speed_ * dt * dir_;
-	
-	
-	//左(場外に行ったら～～)
-	
-	//誰か一体が端に行ったら全員反転する
-	//左端は0番目、右端は末尾
-	//オブジェクトプールの場合、配列を並び替えて末尾を記憶するとか、
-	//末尾から機能が有効な奴を探索するとか
-
-	//オブジェクトプールでなく削除、追加の際に配列のサイズを変えるなら単にendで末尾でいい
-	
-	//端に行ったかはEnemy以外が判定する。全員まとめて反転させたいから。
-	//その際、具体的なデータ構造にアクセスしてると後から変更が大変なので、bool関数で返す
-
-	//軍隊クラスとかあったほういいのかもしれない
-
-	//一体ずつ端に行ったかどうか調べればいっか
 }
 
 void Enemy::Draw()
 {
-	Rect rect = GetRect();
-	//Enemyの座標の真ん中に画像表示
-	DrawExtendGraphF(rect.x, rect.y , rect.x+ rect.width, rect.y + rect.height, hImage_, TRUE);
-	DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
-	//DrawExtendGraphF(x_ - ENEMY_MARGIN_X, y_ - ENEMY_MARGIN_Y, x_ + ENEMY_MARGIN_X, y_ + ENEMY_MARGIN_Y, hImage_, TRUE);
+	GameObject::Draw();
 }
 
 bool Enemy::IsLeftEnd()
 {
+	Rect rect = GetRect();
 	return (x_ < LEFT_END);
 }
 
 bool Enemy::IsRightEnd()
 {
 	//右(場外)にいったら～～
-	return (x_ + ENEMY_IMAGE_WIDTH > RIGHT_END);
+	Rect rect = GetRect();
+	return (rect.width > RIGHT_END);
 }
 
 void Enemy::ChangeMoveDirLeft()
 {
-	//x_ = WIN_WIDTH - ENEMY_IMAGE_WIDTH;
-	//敵が隊列の何番目で配置を決める必要がある
 	dir_ = MoveDir::left;
 }
 

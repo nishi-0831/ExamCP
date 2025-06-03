@@ -6,6 +6,8 @@
 #include "Bullet.h"
 #include <DxLib.h>
 #include <cmath>
+#include "ImGui/Imgui.h"
+
 namespace
 {
 	//stage.cppˆÈŠO‚Å‚ÍQÆ‚Å‚«‚È‚­‚È‚é‚æ
@@ -16,7 +18,11 @@ namespace
 	bool IntersectRect(const Rect &a, const Rect &b)
 	{
 		//a‚Æb‚ª‚Ô‚Â‚©‚Á‚Ä‚¢‚é‚È‚çtrue
-		if (a.y < b.y + b.height && a.y + a.height > b.y && a.x + a.width > b.x && a.x < b.x + b.width)
+		/*if (a.y < b.y + b.height && a.y + a.height > b.y && a.x + a.width > b.x && a.x < b.x + b.width)
+		{
+			return true;
+		}*/
+		if(a.y <b.height && a.height > b.y && a.width > b.x && a.x < b.width)
 		{
 			return true;
 		}
@@ -81,26 +87,64 @@ Stage::~Stage()
 void Stage::Update()
 {
 	//‹Ê‚Íplayer::bullets
-	
-	for (auto& e : enemy_)
+	/*for (int i = 0; i < enemy_.size(); i++)
 	{
-		for (auto& a : player_->GetAllBullets())
+		if (enemy_[i] == nullptr) continue;
+
+		std::vector<Bullet*> bullets = player_->GetAllBullets();
+		for (int j = 0; j < bullets.size(); j++)
 		{
-			if (e->IsAlive() == false || !(a->IsFired()))
+			if ((enemy_[i]->IsAlive() == false) || (bullets[j]->IsFired() == false))
 			{
 				continue;
 			}
-			if (IntersectRect(e->GetRect(), a->GetRect()))
+			if (IntersectRect(enemy_[i]->GetRect(), bullets[j]->GetRect()))
 			{
-				e->SetAlive(false);
-				a->SetFired(false);
+				enemy_.erase()
 			}
 		}
-		
-	}
-	for (auto& e : enemy_)
+	}*/
+	//for (auto& e : enemy_)
+	for(auto eneItr = enemy_.begin();eneItr != enemy_.end();)
 	{
-		if (e->IsAlive() == false || nullptr)
+		if ((*eneItr) == nullptr)
+		{
+			++eneItr;
+			continue;
+		}
+		//for (auto& a : player_->GetAllBullets())
+		for(auto playerItr = player_->GetAllBullets().begin(); playerItr != player_->GetAllBullets().end(); ++playerItr)
+
+		{
+			if ((*eneItr)->IsAlive() == false || !((*playerItr)->IsFired()))
+			{
+				
+				continue;
+			}
+			bool isInterSect = false;
+			if (IntersectRect((*eneItr)->GetRect(), (*playerItr)->GetRect()))
+			{
+				(*eneItr)->SetAlive(false);
+				(*playerItr)->SetFired(false);
+			}
+		}
+		if ((*eneItr)->IsAlive())
+		{
+			++eneItr;
+		}
+		else
+		{
+			eneItr = enemy_.erase(eneItr);
+		}
+	}
+
+ 	for (auto& e : enemy_)
+	{
+		if (e == nullptr)
+		{
+			continue;
+		}
+		if (e->IsAlive() == false)
 		{
 			continue;
 		}
@@ -110,7 +154,7 @@ void Stage::Update()
 			{
 				ene->ChangeMoveDirRight();
 			}
-			break;
+			
 		}
 		if (e->IsRightEnd())
 		{
@@ -118,13 +162,14 @@ void Stage::Update()
 			{
 				ene->ChangeMoveDirLeft();
 			}
-			break;
+			
 		}
 	}
 }
 
 void Stage::Draw()
 {
+	
 	/*player_->Draw();
 	for (auto& elm : enemy_)
 	{

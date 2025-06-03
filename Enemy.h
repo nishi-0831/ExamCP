@@ -24,14 +24,14 @@ public:
 	void ChangeMoveDirLeft();
 	void ChangeMoveDirRight();
 
-	Rect GetRect() const {
+	/*Rect GetRect() const {
 		return { x_, y_, imageSize_.x,imageSize_.y};
-	}
+	}*/
 	void SetAlive(bool flag) { isAlive_ = flag; }
 protected:
 private:
 	Animation2D* effect;
-	int hImage_;//敵の画像ハンドル
+	//int hImage_;//敵の画像ハンドル
 	//float x_, y_;//敵の座標
 	float speed_;//敵の移動速度
 	int dir_;
