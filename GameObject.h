@@ -1,9 +1,12 @@
 #pragma once
 #include <vector>
+#include "global.h"
 class GameObject
 {
 protected:
 	bool isAlive_;
+	Point imageSize_;
+	float x_,y_;
 public:
 	GameObject();
 	virtual ~GameObject();
@@ -11,6 +14,7 @@ public:
 	virtual void Draw() = 0;
 	bool IsAlive() const { return isAlive_; } //生存確認
 	void SetActive(bool alive) { isAlive_ = alive; }
+	Rect GetRect();
 };
 
 extern std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター

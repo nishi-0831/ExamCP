@@ -3,7 +3,7 @@
 #include "Enemy.h"
 #include "global.h"
 #include <vector>
-
+#include "Bullet.h"
 namespace
 {
 	//stage.cppˆÈŠO‚Å‚ÍQÆ‚Å‚«‚È‚­‚È‚é‚æ
@@ -11,7 +11,15 @@ namespace
 	const int ENEMY_COL_SIZE = 10;
 	const int ENEMY_ROW_SIZE = 7;
 	const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
-	//const int 
+	bool IntersectRect(const Rect &a, const Rect &b)
+	{
+		//a‚Æb‚ª‚Ô‚Â‚©‚Á‚Ä‚¢‚é‚È‚çtrue
+		if (a.y < b.y + b.height && a.y + a.height > b.y && a.x + a.width > b.x && a.x < b.x + b.width)
+		{
+			return true;
+		}
+		return false;
+	}
 }
 
 Stage::Stage()
@@ -58,14 +66,31 @@ Stage::~Stage()
 
 void Stage::Update()
 {
-	if ((*(enemy_.begin()))->IsLeftEnd())
+	//‹Ê‚Íplayer::bullets
+	
+	for (auto& e : enemy_)
 	{
+		for (auto& a : player_->GetAllBullets())
+		{
+			if (e->IsAlive() == false)
+			{
+				continue;
+			}
+			if (IntersectRect(e->GetRect(), a->GetRect()))
+			{
+				e->SetAlive(false);
+				a->SetFired(false);
+			}
+		}
 		
+	}
+	if ((*(enemy_.begin()))->IsLeftEnd())
+	{	
 	}
 	else if ((*(enemy_.rbegin()))->IsLeftEnd())
 	{
-
 	}
+	
 }
 
 void Stage::Draw()

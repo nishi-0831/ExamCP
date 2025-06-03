@@ -28,9 +28,11 @@ namespace
 		right = 1
 	};
 }
+
 Enemy::Enemy(int id, ETYPE type)
-	: GameObject(), hImage_(-1), x_(0), y_(0), speed_(0), ID_(id),type_(type),dir_(1)
+	: GameObject(), hImage_(-1),speed_(0), ID_(id),type_(type),dir_(1)
 {
+	imageSize_ = { ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
 	std::string imagePath[MAX_ETYPE] =
 	{
 		"Assets\\tiny_ship10.png", //ZAKO
@@ -52,9 +54,8 @@ Enemy::Enemy(int id, ETYPE type)
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
 }
 Enemy::Enemy()
-	:GameObject(), hImage_(-1), x_(0), y_(0), speed_(0),dir_(1)
+	:GameObject(), hImage_(-1),  speed_(0),dir_(1)
 {
-
 	hImage_ = LoadGraph("Assets\\tiny_ship10.png");
 	if (hImage_ == -1)
 	{
@@ -77,7 +78,7 @@ void Enemy::Update()
 {
 	float dt = GetDeltaTime();
 	
-	x_ += speed_ * dt * dir_;
+	//x_ += speed_ * dt * dir_;
 	
 	
 	//左(場外に行ったら～～)
@@ -97,8 +98,11 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
+	Rect rect = GetRect();
 	//Enemyの座標の真ん中に画像表示
-	DrawExtendGraphF(x_ - ENEMY_MARGIN_X, y_ - ENEMY_MARGIN_Y, x_ + ENEMY_MARGIN_X, y_ + ENEMY_MARGIN_Y, hImage_, TRUE);
+	DrawExtendGraphF(rect.x, rect.y , rect.x+ rect.width, rect.y + rect.height, hImage_, TRUE);
+	DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
+	//DrawExtendGraphF(x_ - ENEMY_MARGIN_X, y_ - ENEMY_MARGIN_Y, x_ + ENEMY_MARGIN_X, y_ + ENEMY_MARGIN_Y, hImage_, TRUE);
 }
 
 bool Enemy::IsLeftEnd()

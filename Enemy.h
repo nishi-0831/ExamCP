@@ -8,13 +8,6 @@ enum ETYPE
 class Enemy :
     public GameObject
 {
-	int hImage_;//“G‚Ì‰æ‘œƒnƒ“ƒhƒ‹
-	float x_, y_;//“G‚ÌÀ•W
-	float speed_;//“G‚ÌˆÚ“®‘¬“x
-	int dir_;
-	//bool isAlive_;//“G‚Ì¶€
-	int ID_;//“G‚ÌID
-	ETYPE type_;
 public:
 	Enemy(int id,ETYPE type);
 	Enemy(int id);
@@ -31,7 +24,18 @@ public:
 	void ChangeMoveDirRight();
 
 	Rect GetRect() const {
-		return { x_, y_, ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
+		return { x_, y_, imageSize_.x,imageSize_.y};
 	}
+	void SetAlive(bool flag) { isAlive_ = flag; }
+protected:
+private:
+	int hImage_;//“G‚Ì‰æ‘œƒnƒ“ƒhƒ‹
+	//float x_, y_;//“G‚ÌÀ•W
+	float speed_;//“G‚ÌˆÚ“®‘¬“x
+	int dir_;
+	//bool isAlive_;//“G‚Ì¶€
+	int ID_;//“G‚ÌID
+	ETYPE type_;
+	//Point imageSize_;
 };
 

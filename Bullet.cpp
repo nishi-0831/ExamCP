@@ -15,7 +15,7 @@ namespace
 }
 
 Bullet::Bullet()
-	: GameObject(),hImage_(-1),x_(0),y_(0), speed_(0),isize_x(BULLET_IMAGE_WIDTH),isize_y(BULLET_IMAGE_HEIGHT),isFired_{false}
+	: GameObject(), hImage_(-1), x_(0), y_(0), speed_(0), imageSize_({ BULLET_IMAGE_WIDTH,BULLET_IMAGE_HEIGHT }), isFired_{ false }
 {
 	isAlive_ = true;
  	hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
@@ -43,7 +43,7 @@ void Bullet::Update()
 	{
 		float dt = GetDeltaTime();
 		y_ -= (speed_ * dt);//’e‚ÌˆÚ“®
-		if (y_ < 0 - isize_y)
+		if (y_ < 0 - imageSize_.y)
 		{
 			isFired_ = false;
 		}
@@ -54,10 +54,14 @@ void Bullet::Draw()
 {
 	if (isFired_)
 	{
-		int centerSizeX = isize_x / 2;
-		int centerSizeY = isize_y / 2;
-		DrawExtendGraphF(x_ - centerSizeX, y_ - centerSizeY, x_ + isize_x - centerSizeX, y_ + isize_y - centerSizeY,
-			hImage_, TRUE);//’e‚Ì•`‰æ
+		//int centerSizeX = imageSize_.x / 2;
+		//int centerSizeY = imageSize_.y / 2;
+		//DrawExtendGraphF(x_ - centerSizeX, y_ - centerSizeY, x_ + imageSize_.x - centerSizeX, y_ + imageSize_.y - centerSizeY,
+		//	hImage_, TRUE);//’e‚Ì•`‰æ
+		Rect rect = GetRect();
+		//Bullet‚ÌÀ•W‚Ì^‚ñ’†‚É‰æ‘œ•\¦
+		DrawExtendGraphF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, hImage_, TRUE);
+		DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
 	}
 }
 

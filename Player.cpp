@@ -20,8 +20,10 @@ namespace
 }
 Player::Player()
 //ハンドルは一般に正の整数
-	:GameObject(), hImage_(-1), x_(0), y_(0), speed_(0)
-{//プレイヤーの画像を読み込む
+	:GameObject(), hImage_(-1),  speed_(0)
+{
+	imageSize_ = { PLAYER_IMAGE_WIDTH ,PLAYER_IMAGE_HEIGHT };
+	//プレイヤーの画像を読み込む
 	hImage_ = LoadGraph("Assets\\tiny_ship5.png");
 	if (hImage_ == -1)
 	{
@@ -75,8 +77,10 @@ void Player::Update()
 
 void Player::Draw()
 {
-	//プレイヤーの画像を描画(画像の原点は左上)
-	DrawExtendGraph(x_,y_, x_ + PLAYER_IMAGE_WIDTH, y_ + PLAYER_IMAGE_HEIGHT, hImage_, TRUE);
+	Rect rect = GetRect();
+	//Playerの座標の真ん中に画像表示
+	DrawExtendGraphF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, hImage_, TRUE);
+	DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
 }
 
 
