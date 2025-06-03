@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include "Animation2D.h"
 
 namespace
 {
@@ -51,6 +52,7 @@ Enemy::Enemy(int id, ETYPE type)
 	y_ = ENEMY_INIT_Y;
 	speed_ = ENEMY_INIT_SPEED;
 	AddGameObject(this);
+	//this->effect = new Animation2D(x_,y_);
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
 }
 Enemy::Enemy()
@@ -68,6 +70,10 @@ Enemy::Enemy()
 
 Enemy::~Enemy()
 {
+	SetAlive(false);
+	this->effect = new Animation2D(x_, y_);
+	AddGameObject(this->effect);
+	//delete this->effect;
 	if (hImage_ != -1)
 	{
 		DeleteGraph(hImage_);
@@ -78,7 +84,7 @@ void Enemy::Update()
 {
 	float dt = GetDeltaTime();
 	
-	//x_ += speed_ * dt * dir_;
+	x_ += speed_ * dt * dir_;
 	
 	
 	//左(場外に行ったら～～)
@@ -94,6 +100,8 @@ void Enemy::Update()
 	//その際、具体的なデータ構造にアクセスしてると後から変更が大変なので、bool関数で返す
 
 	//軍隊クラスとかあったほういいのかもしれない
+
+	//一体ずつ端に行ったかどうか調べればいっか
 }
 
 void Enemy::Draw()

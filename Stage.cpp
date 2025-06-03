@@ -4,6 +4,8 @@
 #include "global.h"
 #include <vector>
 #include "Bullet.h"
+#include <DxLib.h>
+#include <cmath>
 namespace
 {
 	//stage.cppà»äOÇ≈ÇÕéQè∆Ç≈Ç´Ç»Ç≠Ç»ÇÈÇÊ
@@ -18,6 +20,17 @@ namespace
 		{
 			return true;
 		}
+		/*Point centerA = a.GetCenter();
+		Point centerB = b.GetCenter();
+
+		Point hitLength = { (a.width / 2) + (b.width / 2),(a.height / 2) + (b.height / 2) };
+		Point absDis = {abs( centerA.x - centerB.x),abs(centerA.y - centerB.y) };
+		
+		if ((hitLength.x < absDis.x) && (hitLength.y < absDis.y))
+		{
+			return true;
+		}*/
+
 		return false;
 	}
 }
@@ -58,6 +71,7 @@ Stage::Stage()
 		enemy_[i]->SetID(i);
 		enemy_[i]->SetPos(100 + col * 50, 100 + row * 50);
 	}
+	hBackground_ = LoadGraph("Asset/bg.png");
 }
 
 Stage::~Stage()
@@ -72,7 +86,7 @@ void Stage::Update()
 	{
 		for (auto& a : player_->GetAllBullets())
 		{
-			if (e->IsAlive() == false)
+			if (e->IsAlive() == false || !(a->IsFired()))
 			{
 				continue;
 			}
@@ -84,13 +98,29 @@ void Stage::Update()
 		}
 		
 	}
-	if ((*(enemy_.begin()))->IsLeftEnd())
-	{	
-	}
-	else if ((*(enemy_.rbegin()))->IsLeftEnd())
+	for (auto& e : enemy_)
 	{
+		if (e->IsAlive() == false || nullptr)
+		{
+			continue;
+		}
+		if (e->IsLeftEnd())
+		{
+			for (auto& ene : enemy_)
+			{
+				ene->ChangeMoveDirRight();
+			}
+			break;
+		}
+		if (e->IsRightEnd())
+		{
+			for (auto& ene : enemy_)
+			{
+				ene->ChangeMoveDirLeft();
+			}
+			break;
+		}
 	}
-	
 }
 
 void Stage::Draw()
@@ -100,4 +130,6 @@ void Stage::Draw()
 	{
 		elm->Draw();
 	}*/
+	//SetDrawBlendMode(DX_BLENDGRAPHTYPE_ALPHA,)
+	//DrawExtendGraph(0,)
 }

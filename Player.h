@@ -21,7 +21,7 @@ public:
 	Rect GetRect() const {
 		return { x_, y_, imageSize_.x, imageSize_.y};
 	}
-	std::vector<Bullet*> GetAllBullets() const {
+	std::vector<Bullet*>& GetAllBullets()  {
 		return bullets_;
 	}
 };

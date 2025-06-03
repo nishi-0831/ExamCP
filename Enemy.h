@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "global.h"
+class Animation2D;
 enum ETYPE
 {
 	ZAKO,MID,KNIGHT,BOSS,MAX_ETYPE
@@ -29,6 +30,7 @@ public:
 	void SetAlive(bool flag) { isAlive_ = flag; }
 protected:
 private:
+	Animation2D* effect;
 	int hImage_;//敵の画像ハンドル
 	//float x_, y_;//敵の座標
 	float speed_;//敵の移動速度
