@@ -3,6 +3,7 @@
 #include "global.h"
 #include "Input.h"
 #include "Bullet.h"
+#include <algorithm>
 
 namespace
 {
@@ -49,15 +50,22 @@ Player::~Player()
 void Player::Update()
 {
 	float dt = GetDeltaTime(); //フレーム間の時間差を取得
+	float dash = 0;
+	if (Input::IsKeepKeyDown(KEY_INPUT_LSHIFT))
+	{
+		dash = speed_;
+	}
 	if (Input::IsKeepKeyDown(KEY_INPUT_LEFT))
 	{
-		x_ -= speed_ * dt;
+		x_ -= (speed_+dash) * dt;
 	}
 	if (Input::IsKeepKeyDown(KEY_INPUT_RIGHT))
 	{
-		x_ += speed_ * dt;
+		x_ += (speed_+dash) * dt;
 	}
-
+	//範囲外に行かないように
+	Point center = GetCenter();
+	x_ = std::clamp(x_, LEFT_END + center.x , RIGHT_END - center.x);
 	static float bulletTimer = 0.0f;
 	if (bulletTimer > 0.0f)
 	{
@@ -72,8 +80,8 @@ void Player::Update()
 			new Bullet(x_ + PLAYER_IMAGE_HEIGHT / 2, y_);
 			bulletTimer = BULLET_INTERVAL;
 		}*/
-		
 	}
+	
 }
 
 void Player::Draw()

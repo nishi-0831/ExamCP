@@ -20,8 +20,7 @@ namespace
 	const float ENEMY_INIT_X = 100.0f;//“G‚Ì‰ŠúXÀ•W
 	const float ENEMY_INIT_Y = 100.0f;//“G‚Ì‰ŠúYÀ•W
 
-	const int LEFT_END = 0;
-	const int RIGHT_END = WIN_WIDTH;
+	
 
 	enum MoveDir
 	{
@@ -112,4 +111,9 @@ void Enemy::ChangeMoveDirRight()
 {
 	//x_ = LEFT_END;
 	dir_ = MoveDir::right;
+}
+
+void Enemy::MovePosY(float y)
+{
+	y_ += y;
 }

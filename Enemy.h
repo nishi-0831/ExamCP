@@ -18,26 +18,23 @@ public:
 	void Draw() override;
 	void SetPos(float x, float y) { x_ = x, y_ = y; }
 	void SetID(int id) { ID_ = id; } //“G‚ÌID‚ğƒZƒbƒg
-	
+	int GetID() { return ID_; }
 	bool IsLeftEnd();
 	bool IsRightEnd();
 	void ChangeMoveDirLeft();
 	void ChangeMoveDirRight();
 
-	/*Rect GetRect() const {
-		return { x_, y_, imageSize_.x,imageSize_.y};
-	}*/
+	void MovePosY(float y);
 	void SetAlive(bool flag) { isAlive_ = flag; }
 protected:
 private:
 	Effect* effect;
-	//int hImage_;//“G‚Ì‰æ‘œƒnƒ“ƒhƒ‹
-	//float x_, y_;//“G‚ÌÀ•W
+	
 	float speed_;//“G‚ÌˆÚ“®‘¬“x
 	int dir_;
 	//bool isAlive_;//“G‚Ì¶€
 	int ID_;//“G‚ÌID
 	ETYPE type_;
-	//Point imageSize_;
+	
 };
 

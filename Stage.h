@@ -13,6 +13,7 @@ private:
 	Player* player_;
 	std::vector<Enemy*> enemy_;
 	int hBackground_;
+	
 public:
 	Stage();
 	~Stage();

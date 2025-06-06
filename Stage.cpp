@@ -12,33 +12,9 @@ namespace
 {
 	//stage.cppˆÈŠO‚Å‚ÍQÆ‚Å‚«‚È‚­‚È‚é‚æ
 	
-	const int ENEMY_COL_SIZE = 10;
-	const int ENEMY_ROW_SIZE = 7;
-	const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
-	bool IntersectRect(const Rect &a, const Rect &b)
-	{
-		//a‚Æb‚ª‚Ô‚Â‚©‚Á‚Ä‚¢‚é‚È‚çtrue
-		/*if (a.y < b.y + b.height && a.y + a.height > b.y && a.x + a.width > b.x && a.x < b.x + b.width)
-		{
-			return true;
-		}*/
-		if(a.y <b.height && a.height > b.y && a.width > b.x && a.x < b.width)
-		{
-			return true;
-		}
-		/*Point centerA = a.GetCenter();
-		Point centerB = b.GetCenter();
+	
 
-		Point hitLength = { (a.width / 2) + (b.width / 2),(a.height / 2) + (b.height / 2) };
-		Point absDis = {abs( centerA.x - centerB.x),abs(centerA.y - centerB.y) };
-		
-		if ((hitLength.x < absDis.x) && (hitLength.y < absDis.y))
-		{
-			return true;
-		}*/
-
-		return false;
-	}
+	
 }
 
 Stage::Stage()
@@ -75,7 +51,7 @@ Stage::Stage()
 		//enemy_[i] = new Enemy(i, type);
 		enemy_[i] = new Enemy(i, enemyType[row]);
 		enemy_[i]->SetID(i);
-		enemy_[i]->SetPos(100 + col * 50, 100 + row * 50);
+		enemy_[i]->SetPos(ARMY_MARGIN + col * ENEMY_ALIGN_X, 100 + row * ENEMY_ALIGN_Y);
 	}
 	hBackground_ = LoadGraph("Asset/bg.png");
 }
@@ -140,6 +116,7 @@ void Stage::Update()
 
  	for (auto& e : enemy_)
 	{
+		
 		if (e == nullptr)
 		{
 			continue;
@@ -148,28 +125,41 @@ void Stage::Update()
 		{
 			continue;
 		}
+		int MOVEMENT = 100;
 		if (e->IsLeftEnd())
 		{
+			
 			for (auto& ene : enemy_)
 			{
 				ene->ChangeMoveDirRight();
+				ene->MovePosY(MOVEMENT);	
 			}
+			return;
 			
 		}
 		if (e->IsRightEnd())
 		{
-			for (auto& ene : enemy_)
+			for (auto& ene : enemy_ )
 			{
 				ene->ChangeMoveDirLeft();
+				ene->MovePosY(MOVEMENT);
+				
 			}
-			
+			return;
 		}
 	}
 }
 
 void Stage::Draw()
 {
-	
+	ImGui::Begin("enemy");
+	for (auto ene : enemy_)
+	{
+		Point pos = ene->GetPos();
+		ImGui::Text("enemy[%d] : pos(%4.1f,%4.1f)", ene->GetID(),pos.x, pos.y);
+	}
+	ImGui::End();
+	//
 	/*player_->Draw();
 	for (auto& elm : enemy_)
 	{

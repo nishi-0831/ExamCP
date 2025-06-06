@@ -18,6 +18,11 @@ Rect GameObject::GetRect()
 	return { x_ - centerSizeX, y_ - centerSizeY, x_ + centerSizeX, y_  + centerSizeY };
 }
 
+Point GameObject::GetCenter()
+{
+	return Point(imageSize_.x / 2, imageSize_.y / 2);
+}
+
 void GameObject::Draw()
 {
 	if (!isAlive_) return;

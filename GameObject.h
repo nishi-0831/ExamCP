@@ -16,6 +16,8 @@ public:
 	bool IsAlive() const { return isAlive_; } //生存確認
 	void SetActive(bool alive) { isAlive_ = alive; }
 	Rect GetRect();
+	Point GetCenter();
+	Point GetPos() { return Point(x_, y_); }
 };
 
 extern std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター
