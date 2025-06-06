@@ -69,7 +69,7 @@ Enemy::Enemy()
 
 Enemy::~Enemy()
 {
-	this->effect = new Animation2D(x_, y_);
+	this->effect = new Effect(x_, y_);
 	SetAlive(false);
 	AddGameObject(this->effect);
 	if (hImage_ != -1)

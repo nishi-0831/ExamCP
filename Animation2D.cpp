@@ -9,7 +9,7 @@ namespace
 	int column = 3;
 	
 }
-void Animation2D::Anim()
+void Effect::Anim()
 {
 	animTimer_ += GetDeltaTime();
 	if (animTimer_ >= animInterval_)
@@ -21,7 +21,7 @@ void Animation2D::Anim()
 	}
 }
 
-Animation2D::Animation2D(float x, float y)
+Effect::Effect(float x, float y)
 {
 	hImage_ = LoadGraph("Assets/explosion.png");
 	x_ = x;
@@ -36,7 +36,7 @@ Animation2D::Animation2D(float x, float y)
 
 
 
-void Animation2D::Update()
+void Effect::Update()
 {
 	Anim();
 	if (index_ > animTipNum_)
@@ -45,7 +45,7 @@ void Animation2D::Update()
 	}
 }
 
-void Animation2D::Draw()
+void Effect::Draw()
 {
 	//GameObject::Draw();
 	//3*3のアニメチップ

@@ -3,7 +3,7 @@
 #include <vector>
 #include "global.h"
 #include "GameObject.h"
-class Animation2D : public GameObject
+class Effect : public GameObject
 {
 	int nowFrame_ = 0;// 現在のアニメーションフレーム
 	int index_ = 0;
@@ -15,7 +15,7 @@ class Animation2D : public GameObject
 	Point frame;
 public:
 	
-	Animation2D(float x, float y);
+	Effect(float x, float y);
 	
 	void Update() override;
 	void Draw() override;
