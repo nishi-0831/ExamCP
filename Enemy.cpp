@@ -93,7 +93,7 @@ void Enemy::Draw()
 bool Enemy::IsLeftEnd()
 {
 	Rect rect = GetRect();
-	return (x_ < LEFT_END);
+	return (rect.x < LEFT_END);
 }
 
 bool Enemy::IsRightEnd()
