@@ -16,5 +16,7 @@ public:
     void Draw() override;
     std::vector<Enemy*> enemy_;
     bool InterSectEnemy(const Rect& bullet);
+    bool IsLeftEnd();
+    bool IsRightEnd();
 };
 

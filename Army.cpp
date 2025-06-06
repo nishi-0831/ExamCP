@@ -2,6 +2,10 @@
 #include "global.h"
 #include "Enemy.h"
 
+namespace
+{
+	int MOVEMENT = 100;
+}
 Army::Army()
     :GameObject()
 {
@@ -46,6 +50,25 @@ Army::~Army()
 
 void Army::Update()
 {
+	if (IsLeftEnd())
+	{
+		for (auto& ene : enemy_)
+		{
+			ene->ChangeMoveDirRight();
+			ene->MovePosY(MOVEMENT);
+		}
+		return;
+
+	}
+	if (IsRightEnd())
+	{
+		for (auto& ene : enemy_)
+		{
+			ene->ChangeMoveDirLeft();
+			ene->MovePosY(MOVEMENT);
+		}
+		return;
+	}
 }
 
 void Army::Draw()
@@ -54,6 +77,17 @@ void Army::Draw()
 
 bool Army::InterSectEnemy(const Rect& bullet)
 {
+	for (auto& e : enemy_)
+	{
+		if (e == nullptr)
+		{
+			continue;
+		}
+		if (e->IsAlive() == false)
+		{
+			continue;
+		}
+	}
     for (auto ene : enemy_)
     {
         if (IntersectRect(ene->GetRect(), bullet))
@@ -63,4 +97,26 @@ bool Army::InterSectEnemy(const Rect& bullet)
         }
     }
     return false;
+}
+
+bool Army::IsLeftEnd()
+{
+	for (auto& e : enemy_)
+	{
+		if (e->IsLeftEnd())
+		{
+			return true;
+		}
+	}
+}
+
+bool Army::IsRightEnd()
+{
+	for (auto& e : enemy_)
+	{
+		if (e->IsRightEnd())
+		{
+			return true;
+		}
+	}
 }
