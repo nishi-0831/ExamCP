@@ -1,5 +1,7 @@
 #include "time.h"
 #include <Windows.h>
+#include <stdlib.h>
+#include <time.h>
 
 namespace {
 	LARGE_INTEGER freq;
@@ -22,4 +24,10 @@ void Time::Refresh()
 float Time::DeltaTime()
 {
 	return deltaTime;
+}
+
+int Time::Random(int max)
+{
+	srand((unsigned int)time(NULL)); // Œ»İ‚Ìî•ñ‚Å‰Šú‰»
+	return (rand() % max); 
 }

@@ -11,10 +11,7 @@
 namespace
 {
 	//stage.cppà»äOÇ≈ÇÕéQè∆Ç≈Ç´Ç»Ç≠Ç»ÇÈÇÊ
-	
-	
-
-	
+	const float shootInterval = 0.5f;
 }
 
 Stage::Stage()
@@ -62,25 +59,13 @@ Stage::~Stage()
 
 void Stage::Update()
 {
-	//ã ÇÕplayer::bullets
-	/*for (int i = 0; i < enemy_.size(); i++)
+	shootTimer_ += GetDeltaTime();
+	if (shootTimer_ >= shootInterval)
 	{
-		if (enemy_[i] == nullptr) continue;
-
-		std::vector<Bullet*> bullets = player_->GetAllBullets();
-		for (int j = 0; j < bullets.size(); j++)
-		{
-			if ((enemy_[i]->IsAlive() == false) || (bullets[j]->IsFired() == false))
-			{
-				continue;
-			}
-			if (IntersectRect(enemy_[i]->GetRect(), bullets[j]->GetRect()))
-			{
-				enemy_.erase()
-			}
-		}
-	}*/
-	//for (auto& e : enemy_)
+		Point point = enemy_[rand() % ENEMY_NUM]->GetPos();
+		AddGameObject(new Bullet(point.x, point.y, Shooter::ENEMY));
+		shootTimer_ -= shootInterval;
+	}
 	for(auto eneItr = enemy_.begin();eneItr != enemy_.end();)
 	{
 		if ((*eneItr) == nullptr)
@@ -89,19 +74,19 @@ void Stage::Update()
 			continue;
 		}
 		//for (auto& a : player_->GetAllBullets())
-		for(auto playerItr = player_->GetAllBullets().begin(); playerItr != player_->GetAllBullets().end(); ++playerItr)
+		
+		for(auto playerBulletItr = player_->GetAllBullets().begin(); playerBulletItr != player_->GetAllBullets().end(); ++playerBulletItr)
 
 		{
-			if ((*eneItr)->IsAlive() == false || !((*playerItr)->IsFired()))
+			if ((*eneItr)->IsAlive() == false || !((*playerBulletItr)->IsFired()))
 			{
-				
 				continue;
 			}
 			bool isInterSect = false;
-			if (IntersectRect((*eneItr)->GetRect(), (*playerItr)->GetRect()))
+			if (IntersectRect((*eneItr)->GetRect(), (*playerBulletItr)->GetRect()))
 			{
 				(*eneItr)->SetAlive(false);
-				(*playerItr)->SetFired(false);
+				(*playerBulletItr)->SetFired(false);
 			}
 		}
 		if ((*eneItr)->IsAlive())
@@ -132,7 +117,7 @@ void Stage::Update()
 			for (auto& ene : enemy_)
 			{
 				ene->ChangeMoveDirRight();
-				ene->MovePosY(MOVEMENT);	
+				//ene->MovePosY(MOVEMENT);	
 			}
 			return;
 			
@@ -142,7 +127,7 @@ void Stage::Update()
 			for (auto& ene : enemy_ )
 			{
 				ene->ChangeMoveDirLeft();
-				ene->MovePosY(MOVEMENT);
+				//ene->MovePosY(MOVEMENT);
 				
 			}
 			return;
@@ -156,15 +141,8 @@ void Stage::Draw()
 	for (auto ene : enemy_)
 	{
 		Point pos = ene->GetPos();
-		ImGui::Text("enemy[%d] : pos(%4.1f,%4.1f)", ene->GetID(),pos.x, pos.y);
+		//ImGui::Text("enemy[%d] : pos(%4.1f,%4.1f)", ene->GetID(),pos.x, pos.y);
 	}
 	ImGui::End();
-	//
-	/*player_->Draw();
-	for (auto& elm : enemy_)
-	{
-		elm->Draw();
-	}*/
-	//SetDrawBlendMode(DX_BLENDGRAPHTYPE_ALPHA,)
-	//DrawExtendGraph(0,)
+	
 }

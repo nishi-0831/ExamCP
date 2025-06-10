@@ -6,16 +6,17 @@
 #include <functional>
 #include <string>
 #include "Animation2D.h"
-
+#include "Bullet.h"
 namespace
 {
 	
 	const int ENEMY_MARGIN_X = ENEMY_IMAGE_WIDTH / 2;
 	const int ENEMY_MARGIN_Y = ENEMY_IMAGE_HEIGHT / 2;
 	
-	const int ENEMY_COL_SIZE = 10;
-	const int ENEMY_ROW_SIZE = 7;
-
+	//const int ENEMY_COL_SIZE = 10;
+	//const int ENEMY_ROW_SIZE = 7;
+	
+	
 	const float ENEMY_INIT_SPEED = 100.0f; //‰ŠúˆÚ“®‘¬“x
 	const float ENEMY_INIT_X = 100.0f;//“G‚Ì‰ŠúXÀ•W
 	const float ENEMY_INIT_Y = 100.0f;//“G‚Ì‰ŠúYÀ•W
@@ -32,6 +33,7 @@ namespace
 Enemy::Enemy(int id, ETYPE type)
 	: GameObject(), speed_(0), ID_(id),type_(type),dir_(1)
 {
+	
 	imageSize_ = { ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
 	std::string imagePath[MAX_ETYPE] =
 	{
@@ -82,6 +84,7 @@ void Enemy::Update()
 	float dt = GetDeltaTime();
 	
 	x_ += speed_ * dt * dir_;
+	
 }
 
 void Enemy::Draw()

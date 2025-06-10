@@ -1,15 +1,14 @@
 #pragma once
 #include "GameObject.h"
-#include "global.h"
+
 //玉のサイズは13.0fと33.0f
-class Bullet :
-    public GameObject
+class EnemyBeam :
+	public GameObject
 {
 public:
-	Bullet();
-	Bullet(Shooter shooter);
-	Bullet(float x, float y, Shooter shooter);
-	~Bullet();
+	EnemyBeam();
+	EnemyBeam(float x, float y);
+	~EnemyBeam();
 	void Update() override;
 	void Draw() override;
 
@@ -19,12 +18,9 @@ public:
 	/*Rect GetRect() const {
 		return { x_, y_, (float)imageSize_.x, (float)imageSize_.y };
 	}*/
-	Shooter GetShooter() { return shooter_; }
 private:
-	
 	//int hImage_;
 	//float x_, y_;
-	Shooter shooter_;
 	float speed_;
 	//Point imageSize_;
 	//int isize_x, isize_y;//弾の表示サイズ、画像のサイズ

@@ -2,19 +2,29 @@
 #include "GameObject.h"
 #include "global.h"
 #include <vector>
-
+class Effect;
 class Enemy;
-
-
+enum ETYPE
+{
+	ZAKO, MID, KNIGHT, BOSS, MAX_ETYPE
+};
 class Army :
-    public GameObject
+	public GameObject
 {
 public:
-    Army();
-    ~Army();
-    void Update() override;
-    void Draw() override;
-    std::vector<Enemy*> enemy_;
-    bool InterSectEnemy(const Rect& bullet);
+	Army(int id, ETYPE type);
+	Army(int id);
+	Army();
+	~Army();
+	void Update() override;
+	void Draw() override;
+protected:
+private:
+	Effect* effect;
+
+	std::vector<Enemy*> enemys_;
+	int dir_;
+	ETYPE type_;
+
 };
 

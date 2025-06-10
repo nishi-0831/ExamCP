@@ -17,6 +17,7 @@ public:
 	void Update() override;
 	void Draw() override;
 	void SetPos(float x, float y) { x_ = x, y_ = y; }
+	Point GetPos() { return Point(x_, y_); }
 	void SetID(int id) { ID_ = id; } //“G‚ÌID‚ðƒZƒbƒg
 	int GetID() { return ID_; }
 	bool IsLeftEnd();

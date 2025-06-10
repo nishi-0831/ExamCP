@@ -9,26 +9,61 @@ namespace
 	const int BULLET_IMAGE_HEIGHT = 33;//’e‚Ì‰æ‘œ‚Ì‚‚³
 	const float BULLET_INIT_SPEED = 200.0f;//’e‚Ì‰‘¬
 	const std::string BULLET_IMAGE_PATH = "Assets/laserBlue03.png";//’e‚Ì‰æ‘œ‚ÌƒpƒX
+	static int ENE_HImage;
+	static bool flag = false;//“G‚Ì’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚ñ‚¾‚©‚Ç‚¤‚©
 	const int BULLET_IMAGE_MARGIN = BULLET_IMAGE_WIDTH/2;
 	//const char* BULLET_IMAGE_PATH_CSTR = "Assets/laserBlue03.png";//’e‚Ì‰æ‘œ‚ÌƒpƒX
 	//const char BULLET_IMAGE_PATH_CSTR[] = "Assets/laserBlue03.png";//’e‚Ì‰æ‘œ‚ÌƒpƒX
 }
 
+
+
 Bullet::Bullet()
 	: GameObject(), speed_(0), isFired_{ false }
 {
+	if (!flag)
+	{
+		ENE_HImage = LoadGraph("Assets/ebeams.png");//“G‚Ì’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
+		assert(!(ENE_HImage == -1));
+		flag = true;
+	}
 	imageSize_ = { BULLET_IMAGE_WIDTH,BULLET_IMAGE_HEIGHT };
- 	hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
-	assert(!(hImage_ == -1));
+ 	//hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
+	//assert(!(hImage_ == -1));
 	speed_ = BULLET_INIT_SPEED;//ˆÚ“®‘¬“x
 	isAlive_ = true;//’e‚Í¶‚«‚Ä‚¢‚é
 	AddGameObject(this);
 }
 
+Bullet::Bullet(Shooter shooter) : Bullet()
+{
+	shooter_ = shooter;
+	
+	if (shooter == Shooter::ENEMY)
+	{
+		speed_ = 250.0f;
+		isFired_ = true;
+		//ENE_HImage = LoadGraph("Assets/ebeams.png");//“G‚Ì’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
+		//hImage_ = LoadGraph("Assets/ebeams.png");
+		hImage_ = ENE_HImage;
+	}
+	else if (shooter == Shooter::PLAYER)
+	{
+		speed_ = BULLET_INIT_SPEED;
+		isFired_ = true;
+		hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
+		assert(!(hImage_ == -1));
+	}
+	else
+	{
+		assert(false && "Invalid shooter type");
+	}
+}
 
 
-Bullet::Bullet(float x, float y)
-	:Bullet()
+
+Bullet::Bullet(float x, float y, Shooter shooter)
+	:Bullet(shooter)
 {
 	x_ = x;
 	y_ = y;
@@ -43,8 +78,16 @@ void Bullet::Update()
 	if (isFired_)
 	{
 		float dt = GetDeltaTime();
-		y_ -= (speed_ * dt);//’e‚ÌˆÚ“®
-		if (y_ < 0 - imageSize_.y)
+		if (shooter_ == Shooter::PLAYER)
+		{
+			y_ -= (speed_ * dt);//’e‚ÌˆÚ“®
+		}
+		else if (shooter_ == Shooter::ENEMY)
+		{
+			//“G‚Ì’e‚Í‰º‚©‚çã‚ÉˆÚ“®
+			y_ += (speed_ * dt);//’e‚ÌˆÚ“®
+		}
+		if (y_ < 0 - imageSize_.y || y_ > WIN_HEIGHT)
 		{
 			isFired_ = false;
 		}
@@ -72,3 +115,4 @@ void Bullet::SetPos(float x, float y)
 	x_ = x;
 	y_ = y;
 }
+

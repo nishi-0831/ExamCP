@@ -6,7 +6,7 @@
 namespace
 {
 
-
+	
 	const int WIN_WIDTH = 1024;
 	const int WIN_HEIGHT = 768;
 
@@ -26,6 +26,12 @@ namespace
 	const int ARMY_MARGIN = (WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COL_SIZE)) / 2;
 }
 extern float gDeltaTime;
+
+enum Shooter
+{
+	PLAYER,
+	ENEMY,
+};
 
 //inline‚ğw’è‚µ‚Ä’¼Ú“WŠJ
 inline float GetDeltaTime()

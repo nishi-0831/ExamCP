@@ -4,6 +4,7 @@
 #include <vector>
 #include "Stage.h"
 #include "ImGui/imgui_impl_dxlib.hpp"
+
 namespace
 {
 	const int BGCOLOR[3] = {0,0, 0}; // îwåiêF
@@ -48,6 +49,7 @@ void MyGame()
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
 	DxInit();
+	
 	crrTime = GetNowCount();
 	prevTime = GetNowCount();
 	
