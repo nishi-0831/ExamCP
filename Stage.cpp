@@ -7,18 +7,21 @@
 #include <DxLib.h>
 #include <cmath>
 #include "ImGui/Imgui.h"
-
+#include "Army.h"
 
 namespace
 {
 	//stage.cppˆÈŠO‚Å‚ÍQÆ‚Å‚«‚È‚­‚È‚é‚æ
 	//const float shootInterval = 0.5f;
+	Army* army;
 }
 
 Stage::Stage()
 	: GameObject() , player_(nullptr)
 {
 	AddGameObject(this);
+	army = new Army();
+	AddGameObject(army);
 	player_ = new Player();
 #if test
 	enemy_ = std::vector<Enemy*>(ENEMY_NUM);

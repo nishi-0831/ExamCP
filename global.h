@@ -58,6 +58,8 @@ struct Rect
 	float y;
 	float width;
 	float height;
+	//Point GetCenter()
+	//Point center = Point{ rect_.x + ((rect_.width - rect_.x) / 2),rect_.y + ((rect_.height - rect_.y) / 2) };
 };
 
 inline bool IntersectRect(const Rect& a, const Rect& b)

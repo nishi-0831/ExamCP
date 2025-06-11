@@ -1,10 +1,12 @@
+#define _USE_MATH_DEFINES
 #include "Army.h"
 #include "Enemy.h"
 #include "global.h"
 #include <DxLib.h>
 #include "Time.h"
 #include "Bullet.h"
-
+#include  <math.h>
+#include "ImGui/imgui.h"
 namespace
 {
 	const int ENEMY_COL_SIZE = 10;
@@ -34,6 +36,11 @@ namespace
 	const float shootInterval = 0.5f;
 
 	int rightEnd = ENEMY_ROW_SIZE;
+
+	static int radius = 300;
+	static int tx = 180;
+	static int ty = 180;
+	static int degree = 0;
 }
 
 Army::Army()
@@ -46,6 +53,7 @@ Army::Army()
 	speed_ = 100.0f;
 	shootTimer_ = 0.0f;
 	//enemys_ = std::vector<Enemy*>(ENEMY_NUM);
+	enemys_.resize(ENEMY_NUM);
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		//MAX_ETYPE‚ÅŠ„‚Á‚½—]‚è‚ÍMAX_ETYPE–¢–ž‚É‚È‚é‚æ
@@ -96,17 +104,57 @@ void Army::Update()
 	//ˆÚ“®
 	float dt = Time::DeltaTime();
 	rect_.x += dt * speed_ * dir_;
+
+	degree++;
+	double radian = M_PI * degree / 180;
+
 	for (int i = 0; i < enemys_.size();i++)
 	{
 		int row = i / ENEMY_COL_SIZE;
 		int col = i % ENEMY_COL_SIZE;
-		enemys_[i]->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
-	}	
+		int x = rect_.x + radius * cos(M_PI * (degree + i) / tx );
+		int y = rect_.y + radius * sin(M_PI * (degree + i) / ty );
+		enemys_[i]->SetPos(x,y);
+		//enemys_[i]->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
+	}
+#if 0
+	ImGui::Begin("circle");
+	ImGui::Text("degree%d", degree);
+	ImGui::Text("degree%lf", radian);
+
+	DrawCircle(WIN_WIDTH / 2, WIN_HEIGHT / 2, radius, GetColor(122, 122, 122), FALSE);
+	
+	ImGui::InputInt("tx", &tx);
+	ImGui::InputInt("tx", &ty);
+
+	for (int i = 0;i <= 180;i += 30)
+	{
+		int x = WIN_WIDTH / 2 + radius * cos(M_PI * (degree + i) / (tx + 1));
+		int y = WIN_HEIGHT / 2 + radius * sin(M_PI * (degree + i) / (ty + 1));
+		DrawCircle(x, y, 20, GetColor(0, 255, 255));
+
+	}
+
+	ImGui::End();
+#endif
 }
 
 void Army::Draw()
 {
 	DrawBox(rect_.x, rect_.y, rect_.width, rect_.height, GetColor(0, 255, 0), FALSE);
+	ImGui::Begin("Army");
+
+	Point center = Point{ rect_.x+ ((rect_.width - rect_.x) / 2),rect_.y+((rect_.height - rect_.y) / 2) };
+	//Point center = Point{ rect_.x + (rect_.width / 2),rect_.y + (rect_.height / 2) };
+	DrawCircle(center.x, center.y, 5, GetColor(255, 0, 0),TRUE);
+	//ImGui::Text()
+	ImGui::BeginChild("enemy");
+	for (int i = 0; i < enemys_.size();i++)
+	{
+		ImGui::Text("Army%d:(%f,%f)", i, enemys_[i]->x_, enemys_[i]->y_);
+	}
+	ImGui::EndChild();
+	ImGui::End();
 }
 
 void Army::IsOutOfScreen()

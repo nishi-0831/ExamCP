@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "global.h"
 class Effect;
+class Army;
 //enum ETYPE
 //{
 //	ZAKO,MID,KNIGHT,BOSS,MAX_ETYPE
@@ -9,6 +10,7 @@ class Effect;
 class Enemy :
     public GameObject
 {
+	friend Army; 
 public:
 	Enemy(int id,ETYPE type);
 	Enemy(int id);

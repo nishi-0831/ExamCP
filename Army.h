@@ -8,7 +8,7 @@ class Enemy;
 class Army :
 	public GameObject
 {
-	friend Enemy; //EnemyクラスからArmyのメンバにアクセスできるようにする
+	
 public:
 	Army();
 	~Army();

@@ -1,4 +1,6 @@
+#define _USE_MATH_DEFINES
 #include "DxLib.h"
+#include  <math.h>
 #include "global.h"
 #include "Input.h"
 #include <vector>
@@ -66,6 +68,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());	ImGui_ImplDXlib_Init();
+
+	
 	while (true)
 	{
 		ImGui_ImplDXlib_NewFrame();
@@ -101,6 +105,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			obj->Draw();
 		}
 
+		
+		
+		
+
+		
+
 		for (auto it = gameObjects.begin(); it != gameObjects.end();)
 		{
 			if (!(*it)->IsAlive()) //生きていないオブジェクトを削除
@@ -113,6 +123,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 				++it;
 			}
 		}
+		
 		ImGui::EndFrame();
 		ImGui::Render();
 		ImGui_ImplDXlib_RenderDrawData();
