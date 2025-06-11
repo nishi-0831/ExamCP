@@ -13,7 +13,7 @@ private:
 	Player* player_;
 	std::vector<Enemy*> enemy_;
 	int hBackground_;
-	float shootTimer_;
+	//float shootTimer_;
 
 public:
 	Stage();

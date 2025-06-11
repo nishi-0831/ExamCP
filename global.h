@@ -1,5 +1,6 @@
 #pragma once
 
+#define test 0
 //無名空間にあるのは後から外部ファイルで書き換えることが多い
 
 
@@ -16,6 +17,7 @@ namespace
 	const int ENEMY_IMAGE_HEIGHT = 48; //画像の高さ
 	const int LEFT_END = 0;
 	const int RIGHT_END = WIN_WIDTH;
+#if test
 	const int ENEMY_COL_SIZE = 10;
 	const int ENEMY_ROW_SIZE = 7;
 	const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
@@ -24,6 +26,7 @@ namespace
 	const int ENEMY_ALIGN_Y = 50;
 
 	const int ARMY_MARGIN = (WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COL_SIZE)) / 2;
+#endif
 }
 extern float gDeltaTime;
 
@@ -31,6 +34,10 @@ enum Shooter
 {
 	PLAYER,
 	ENEMY,
+};
+enum ETYPE
+{
+	ZAKO, MID, KNIGHT, BOSS, MAX_ETYPE
 };
 
 //inlineを指定して直接展開

@@ -9,7 +9,7 @@
 #include "Bullet.h"
 namespace
 {
-	
+#if test
 	const int ENEMY_MARGIN_X = ENEMY_IMAGE_WIDTH / 2;
 	const int ENEMY_MARGIN_Y = ENEMY_IMAGE_HEIGHT / 2;
 	
@@ -21,7 +21,7 @@ namespace
 	const float ENEMY_INIT_X = 100.0f;//敵の初期X座標
 	const float ENEMY_INIT_Y = 100.0f;//敵の初期Y座標
 
-	
+#endif	
 
 	enum MoveDir
 	{
@@ -49,24 +49,20 @@ Enemy::Enemy(int id, ETYPE type)
 	{
 		//エラーを返してゲーム終了
 	}
-	x_ = ENEMY_INIT_X;
+
+	/*x_ = ENEMY_INIT_X;
 	y_ = ENEMY_INIT_Y;
-	speed_ = ENEMY_INIT_SPEED;
+	speed_ = ENEMY_INIT_SPEED;*/
 	AddGameObject(this);
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
 }
-Enemy::Enemy()
-	:GameObject()  ,speed_(0),dir_(1)
+Enemy::Enemy(int id, ETYPE type, float x, float y)
+	:Enemy(id,type)
 {
-	hImage_ = LoadGraph("Assets\\tiny_ship10.png");
-	if (hImage_ == -1)
-	{
-		//エラーを返してゲーム終了
-	}
-	x_ = ENEMY_INIT_X;
-	y_ = ENEMY_INIT_Y;
-	speed_ = ENEMY_INIT_SPEED;
+	x_ = x;
+	y_ = y;
 }
+
 
 Enemy::~Enemy()
 {

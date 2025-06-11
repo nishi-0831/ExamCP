@@ -2,16 +2,17 @@
 #include "GameObject.h"
 #include "global.h"
 class Effect;
-enum ETYPE
-{
-	ZAKO,MID,KNIGHT,BOSS,MAX_ETYPE
-};
+//enum ETYPE
+//{
+//	ZAKO,MID,KNIGHT,BOSS,MAX_ETYPE
+//};
 class Enemy :
     public GameObject
 {
 public:
 	Enemy(int id,ETYPE type);
 	Enemy(int id);
+	Enemy(int id, ETYPE type, float x, float y);
 	Enemy();
 	~Enemy();
 	void Update() override;

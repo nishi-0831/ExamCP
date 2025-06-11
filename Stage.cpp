@@ -8,10 +8,11 @@
 #include <cmath>
 #include "ImGui/Imgui.h"
 
+
 namespace
 {
 	//stage.cppà»äOÇ≈ÇÕéQè∆Ç≈Ç´Ç»Ç≠Ç»ÇÈÇÊ
-	const float shootInterval = 0.5f;
+	//const float shootInterval = 0.5f;
 }
 
 Stage::Stage()
@@ -19,6 +20,7 @@ Stage::Stage()
 {
 	AddGameObject(this);
 	player_ = new Player();
+#if test
 	enemy_ = std::vector<Enemy*>(ENEMY_NUM);
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
@@ -50,6 +52,7 @@ Stage::Stage()
 		enemy_[i]->SetID(i);
 		enemy_[i]->SetPos(ARMY_MARGIN + col * ENEMY_ALIGN_X, 100 + row * ENEMY_ALIGN_Y);
 	}
+#endif
 	hBackground_ = LoadGraph("Asset/bg.png");
 }
 
@@ -59,6 +62,7 @@ Stage::~Stage()
 
 void Stage::Update()
 {
+#if test
 	shootTimer_ += GetDeltaTime();
 	if (shootTimer_ >= shootInterval)
 	{
@@ -66,6 +70,7 @@ void Stage::Update()
 		AddGameObject(new Bullet(point.x, point.y, Shooter::ENEMY));
 		shootTimer_ -= shootInterval;
 	}
+#endif
 	for(auto eneItr = enemy_.begin();eneItr != enemy_.end();)
 	{
 		if ((*eneItr) == nullptr)
@@ -89,6 +94,7 @@ void Stage::Update()
 				(*playerBulletItr)->SetFired(false);
 			}
 		}
+
 		if ((*eneItr)->IsAlive())
 		{
 			++eneItr;
@@ -98,7 +104,7 @@ void Stage::Update()
 			eneItr = enemy_.erase(eneItr);
 		}
 	}
-
+#if test
  	for (auto& e : enemy_)
 	{
 		
@@ -133,16 +139,9 @@ void Stage::Update()
 			return;
 		}
 	}
+#endif
 }
 
 void Stage::Draw()
-{
-	ImGui::Begin("enemy");
-	for (auto ene : enemy_)
-	{
-		Point pos = ene->GetPos();
-		//ImGui::Text("enemy[%d] : pos(%4.1f,%4.1f)", ene->GetID(),pos.x, pos.y);
-	}
-	ImGui::End();
-	
+{	
 }
