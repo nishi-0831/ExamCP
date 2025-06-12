@@ -64,8 +64,8 @@ void Player::Update()
 		x_ += (speed_+dash) * dt;
 	}
 	//”ÍˆÍŠO‚És‚©‚È‚¢‚æ‚¤‚É
-	Point center = GetCenter();
-	x_ = std::clamp(x_, LEFT_END + center.x , RIGHT_END - center.x);
+	Point center = GetImageCenter();
+	x_ = std::clamp((int)x_, LEFT_END + center.x , RIGHT_END - center.x);
 	static float bulletTimer = 0.0f;
 	if (bulletTimer > 0.0f)
 	{

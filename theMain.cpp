@@ -5,6 +5,7 @@
 #include "Input.h"
 #include <vector>
 #include "Stage.h"
+#include "Time.h"
 #include "ImGui/imgui_impl_dxlib.hpp"
 
 namespace
@@ -68,13 +69,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 	io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());	ImGui_ImplDXlib_Init();
-
+	Time::Init();
 	
 	while (true)
 	{
 		ImGui_ImplDXlib_NewFrame();
 		ImGui::NewFrame();
 
+		Time::Refresh();
 		ClearDrawScreen();
 		Input::KeyStateUpdate();
 

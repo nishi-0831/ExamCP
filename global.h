@@ -1,5 +1,5 @@
 #pragma once
-
+#include <math.h>
 #define test 0
 //無名空間にあるのは後から外部ファイルで書き換えることが多い
 
@@ -48,18 +48,192 @@ inline float GetDeltaTime()
 
 struct Point
 {
+	int x;
+	int y;
+	//aとbを足すよ
+	Point operator+(const Point& rhs)
+	{
+		return Point{ x + rhs.x, y + rhs.y };
+	}
+	Point operator-(const Point& rhs)
+	{
+		return Point{ x - rhs.x, y - rhs.y };
+	}
+	Point operator*(const int rhs)
+	{
+		return Point{ x * rhs, y * rhs };
+	}
+	Point operator*(const Point rhs)
+	{
+		return Point{ x * rhs.x, y * rhs.y };
+	}
+	Point operator/(const int rhs)
+	{
+		return Point{ x / rhs, y / rhs };
+	}
+	Point operator/(const Point rhs)
+	{
+		return Point{ x / rhs.x, y / rhs.y };
+	}
+	Point operator+=(const Point& rhs)
+	{
+		return Point(x, y) + rhs;
+	}
+	Point operator-=(const Point& rhs)
+	{
+		return Point(x, y) - rhs;
+	}
+	static Point Add(Point a, Point b)
+	{
+		a.x += b.x;
+		a.y += b.y;
+		return a;
+	}
+	//aからbを引くよ
+	static Point Sub(Point a, Point b)
+	{
+		a.x -= b.x;
+		a.y -= b.y;
+		return a;
+	}
+	static Point Abs(Point point)
+	{
+		return Point{ abs(point.x),abs(point.y) };
+	}
+	static int ManhattanDistance(Point a, Point b)
+	{
+		//2点 (x1, y1) と (x2, y2) 間のマンハッタン距離は、
+		// |x1 - x2| + |y1 - y2| で計算されます
+		return abs(a.x - b.x) + abs(a.y - b.y);
+	}
+
+};
+struct PointF
+{
 	float x;
 	float y;
+	PointF()
+	{
+		x = 0;
+		y = 0;
+	}
+	PointF(float f)
+	{
+		x = f;
+		y = f;
+	}
+	PointF(float _x, float _y)
+	{
+		x = _x;
+		y = _y;
+	}
+	//aとbを足すよ
+#if 0
+	
+	PointF operator+(const PointF& rhs)
+	{
+		return PointF{ x + rhs.x, y + rhs.y };
+	}
+	PointF operator-(const PointF& rhs)
+	{
+		return PointF{ x - rhs.x, y - rhs.y };
+	}
+	PointF operator*(const float rhs)
+	{
+		return PointF{ x * rhs, y * rhs };
+	}
+	PointF operator*(const PointF rhs)
+	{
+		return PointF{ x * rhs.x, y * rhs.y };
+	}
+	PointF operator/(const float rhs)
+	{
+		return PointF{ x / rhs, y / rhs };
+	}
+	PointF operator/(const PointF rhs)
+	{
+		return PointF{ x / rhs.x, y / rhs.y };
+	}
+	PointF& operator+=(const PointF& rhs)
+	{
+		x += rhs.x;
+		y += rhs.y;
+		return *this;
+	}
+	PointF& operator-=(const PointF& rhs)
+	{
+		x -= rhs.x;
+		y -= rhs.y;
+		return *this;
+	}
+	static PointF Add(PointF a, PointF b)
+	{
+		a.x += b.x;
+		a.y += b.y;
+		return a;
+	}
+	//aからbを引くよ
+	static PointF Sub(PointF a, PointF b)
+	{
+		a.x -= b.x;
+		a.y -= b.y;
+		return a;
+	}
+#endif
+	
+
 };
 
+#if 1
+PointF operator+(const PointF& lhs,const PointF& rhs)
+	{
+		return PointF{ lhs.x + rhs.x, lhs.y + rhs.y };
+	}
+	PointF operator-(const PointF& lhs,const PointF& rhs)
+	{
+		return PointF{ lhs.x - rhs.x, lhs.y - rhs.y };
+	}
+	PointF operator*(const PointF& lhs,const float rhs)
+	{
+		return PointF{ lhs.x * rhs, lhs.y * rhs };
+	}
+	PointF operator*(const PointF& lhs,const PointF rhs)
+	{
+		return PointF{ lhs.x * rhs.x, lhs.y * rhs.y };
+	}
+	PointF operator/(const PointF& lhs,const float rhs)
+	{
+		return PointF{ lhs.x / rhs, lhs.y / rhs };
+	}
+	PointF operator/(const PointF& lhs,const PointF rhs)
+	{
+		return PointF{ lhs.x / rhs.x, lhs.y / rhs.y };
+	}
+	PointF operator+=(const PointF& lhs,const PointF& rhs)
+	{
+		PointF ret;
+		ret.x = lhs.x + rhs.x;
+		ret.y = lhs.y + rhs.y;
+		return ret;
+	}
+	PointF operator-=(const PointF& lhs,const PointF& rhs)
+	{
+		PointF ret;
+		ret.x = lhs.x - rhs.x;
+		ret.y = lhs.y - rhs.y;
+		return ret;
+	}
+#endif
 struct Rect
 {
 	float x;
 	float y;
 	float width;
 	float height;
-	//Point GetCenter()
-	//Point center = Point{ rect_.x + ((rect_.width - rect_.x) / 2),rect_.y + ((rect_.height - rect_.y) / 2) };
+    inline Point GetCenter()
+    {
+        return Point{ static_cast<int>(x + ((width - x) / 2)), static_cast<int>(y + ((height - y) / 2)) };
+    }
 };
 
 inline bool IntersectRect(const Rect& a, const Rect& b)

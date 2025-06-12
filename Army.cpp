@@ -7,11 +7,13 @@
 #include "Bullet.h"
 #include  <math.h>
 #include "ImGui/imgui.h"
+#include "lerp.h"
 namespace
 {
 	const int ENEMY_COL_SIZE = 10;
 	const int ENEMY_ROW_SIZE = 7;
-	const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
+	const int ENEMY_NUM = 10;
+	//const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
 
 	const int ENEMY_ALIGN_X = 50;
 	const int ENEMY_ALIGN_Y = 50;
@@ -37,14 +39,40 @@ namespace
 
 	int rightEnd = ENEMY_ROW_SIZE;
 
-	static int radius = 300;
+	static int radius = 10;
 	static int tx = 180;
 	static int ty = 180;
 	static int degree = 0;
+
+	std::vector<Point> table;
+	//lerp lerpPos;
+	int x = WIN_WIDTH / 3;
+	int y = WIN_HEIGHT / 3;
+
+	int idx = 0;
+	
+	const float targetInterval = 2.0f;
+	float targetTimer = 0.0f;
+	Point p1;
+	const float LEN = 10.0f;
+
+	const float lTimer = 0.0f;
+
+	float drag = 0;
+	float spring = 2.0f;
+		
 }
 
 Army::Army()
 {
+	p1 = { 10,0 };
+	for (int i = 0; i < 9; i++)
+	{
+		int col = i % 3 + 1;
+		int row = i / 3 + 1;
+		Point pos{ (x * col)/2,(y * row)/2 };
+		table.push_back(pos);
+	}
 	rect_.x = ARMY_RECT_X;
 	rect_.y = ARMY_RECT_Y;
 	rect_.width = ARMY_RECT_WIDTH;
@@ -104,38 +132,33 @@ void Army::Update()
 	//ˆÚ“®
 	float dt = Time::DeltaTime();
 	rect_.x += dt * speed_ * dir_;
+	rect_.width += rect_.x;
+
+	targetTimer += Time::DeltaTime();
+	if (targetTimer >= targetInterval)
+	{
+		idx = ++idx % table.size();
+		targetTimer = 0;
+	}
+
 
 	degree++;
 	double radian = M_PI * degree / 180;
-
-	for (int i = 0; i < enemys_.size();i++)
-	{
-		int row = i / ENEMY_COL_SIZE;
-		int col = i % ENEMY_COL_SIZE;
-		int x = rect_.x + radius * cos(M_PI * (degree + i) / tx );
-		int y = rect_.y + radius * sin(M_PI * (degree + i) / ty );
-		enemys_[i]->SetPos(x,y);
-		//enemys_[i]->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
-	}
-#if 0
-	ImGui::Begin("circle");
-	ImGui::Text("degree%d", degree);
-	ImGui::Text("degree%lf", radian);
-
-	DrawCircle(WIN_WIDTH / 2, WIN_HEIGHT / 2, radius, GetColor(122, 122, 122), FALSE);
 	
-	ImGui::InputInt("tx", &tx);
-	ImGui::InputInt("tx", &ty);
+	Point target = table[idx];
+	static float posX = 0;
+	static float posY = 0;
+	static PointF p1 = { 0,0 };
 
-	for (int i = 0;i <= 180;i += 30)
-	{
-		int x = WIN_WIDTH / 2 + radius * cos(M_PI * (degree + i) / (tx + 1));
-		int y = WIN_HEIGHT / 2 + radius * sin(M_PI * (degree + i) / (ty + 1));
-		DrawCircle(x, y, 20, GetColor(0, 255, 255));
+	p1 += (PointF{ (float)target.x,(float)target.y } - PointF{ posX, posY }) * spring * Time::DeltaTime();
+	p1 -= p1 * drag * Time::DeltaTime();
 
-	}
-
-	ImGui::End();
+	posX += p1.x * Time::DeltaTime();
+	posY += p1.y * Time::DeltaTime();
+	
+	DrawCircle(posX, posY, radius, GetColor(122, 122, 122), FALSE);
+#if 0
+	
 #endif
 }
 
@@ -143,11 +166,10 @@ void Army::Draw()
 {
 	DrawBox(rect_.x, rect_.y, rect_.width, rect_.height, GetColor(0, 255, 0), FALSE);
 	ImGui::Begin("Army");
-
-	Point center = Point{ rect_.x+ ((rect_.width - rect_.x) / 2),rect_.y+((rect_.height - rect_.y) / 2) };
-	//Point center = Point{ rect_.x + (rect_.width / 2),rect_.y + (rect_.height / 2) };
+	ImGui::Text("idx:%d", idx);
+	Point center = rect_.GetCenter();
 	DrawCircle(center.x, center.y, 5, GetColor(255, 0, 0),TRUE);
-	//ImGui::Text()
+	ImGui::Text("rect(%f,%f)", rect_.x, rect_.y);
 	ImGui::BeginChild("enemy");
 	for (int i = 0; i < enemys_.size();i++)
 	{
@@ -155,6 +177,10 @@ void Army::Draw()
 	}
 	ImGui::EndChild();
 	ImGui::End();
+	for (auto t : table)
+	{
+		DrawCircle(t.x, t.y, 5, GetColor(255, 0, 0), TRUE);
+	}
 }
 
 void Army::IsOutOfScreen()
@@ -193,3 +219,20 @@ void Army::IsOutOfScreen()
 }
 
 
+float func(float x)
+{
+	return x * x;
+}
+
+float derivative(float x)
+{
+	const float h = 0.001f;
+	return func(x + h) - func(x) / h;
+}
+
+void a()
+{
+	float y = func(3.0f);
+	float y1 = derivative(3.0f);
+
+}

@@ -16,7 +16,7 @@ public:
 	bool IsAlive() const { return isAlive_; } //ê∂ë∂ämîF
 	void SetActive(bool alive) { isAlive_ = alive; }
 	Rect GetRect();
-	Point GetCenter();
+	Point GetImageCenter();
 	Point GetPos() { return Point(x_, y_); }
 };
 
