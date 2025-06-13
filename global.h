@@ -183,40 +183,40 @@ struct PointF
 	
 
 };
-
+//–¼‘O‹óŠÔ‚ÅˆÍ‚ñ‚¾•û‚ª‚¢‚¢
 #if 1
-PointF operator+(const PointF& lhs,const PointF& rhs)
+	inline PointF operator+(const PointF& lhs,const PointF& rhs)
 	{
 		return PointF{ lhs.x + rhs.x, lhs.y + rhs.y };
 	}
-	PointF operator-(const PointF& lhs,const PointF& rhs)
+	inline PointF operator-(const PointF& lhs,const PointF& rhs)
 	{
 		return PointF{ lhs.x - rhs.x, lhs.y - rhs.y };
 	}
-	PointF operator*(const PointF& lhs,const float rhs)
+	inline PointF operator*(const PointF& lhs,const float rhs)
 	{
 		return PointF{ lhs.x * rhs, lhs.y * rhs };
 	}
-	PointF operator*(const PointF& lhs,const PointF rhs)
+	inline PointF operator*(const PointF& lhs,const PointF rhs)
 	{
 		return PointF{ lhs.x * rhs.x, lhs.y * rhs.y };
 	}
-	PointF operator/(const PointF& lhs,const float rhs)
+	inline PointF operator/(const PointF& lhs,const float rhs)
 	{
 		return PointF{ lhs.x / rhs, lhs.y / rhs };
 	}
-	PointF operator/(const PointF& lhs,const PointF rhs)
+	inline PointF operator/(const PointF& lhs,const PointF rhs)
 	{
 		return PointF{ lhs.x / rhs.x, lhs.y / rhs.y };
 	}
-	PointF operator+=(const PointF& lhs,const PointF& rhs)
+	inline PointF operator+=(const PointF& lhs,const PointF& rhs)
 	{
 		PointF ret;
 		ret.x = lhs.x + rhs.x;
 		ret.y = lhs.y + rhs.y;
 		return ret;
 	}
-	PointF operator-=(const PointF& lhs,const PointF& rhs)
+	inline PointF operator-=(const PointF& lhs,const PointF& rhs)
 	{
 		PointF ret;
 		ret.x = lhs.x - rhs.x;

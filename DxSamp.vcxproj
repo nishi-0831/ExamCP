@@ -139,6 +139,7 @@
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="Army.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="DrawBezier.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyBeam.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="Army.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="DrawBezier.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyBeam.h" />
     <ClInclude Include="GameObject.h" />
@@ -176,7 +178,7 @@
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="lerp.h" />
+    <ClInclude Include="Lerp.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Stage.h" />
     <ClInclude Include="Time.h" />

@@ -7,12 +7,13 @@
 #include "Stage.h"
 #include "Time.h"
 #include "ImGui/imgui_impl_dxlib.hpp"
-
+#include "DrawBezier.h"
 namespace
 {
 	const int BGCOLOR[3] = {0,0, 0}; // 背景色
 	int crrTime;
 	int prevTime;
+	DrawBezier drawBezier;
 }
 
 std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター
@@ -85,6 +86,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		float deltaTime = (crrTime - prevTime) / 1000.0f;
 		gDeltaTime = deltaTime;
 		prevTime = crrTime;
+#if 0
 		//ここにやりたい処理を書く(ここから)
 		if (newObjects.size() > 0)
 		{
@@ -106,9 +108,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			obj->Draw();
 		}
-
+#endif
 		
-		
+		drawBezier.Update();
+		drawBezier.Draw();
 		
 
 		

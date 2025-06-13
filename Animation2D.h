@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 #include <vector>
-#include "global.h"
+//#include "global.h"
 #include "GameObject.h"
 class Effect : public GameObject
 {
