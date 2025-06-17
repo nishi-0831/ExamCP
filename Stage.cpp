@@ -148,3 +148,8 @@ void Stage::Update()
 void Stage::Draw()
 {	
 }
+
+PointF Stage::GetPlayerPos()
+{
+	return PointF();
+}

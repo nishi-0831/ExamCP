@@ -20,5 +20,6 @@ public:
 	~Stage();
 	void Update() override;
 	void Draw() override;
+	PointF GetPlayerPos();
 };
 

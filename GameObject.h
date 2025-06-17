@@ -18,6 +18,7 @@ public:
 	Rect GetRect();
 	Point GetImageCenter();
 	Point GetPos() { return Point(x_, y_); }
+	PointF GetPosF() { return PointF(x_, y_); }
 };
 
 extern std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター

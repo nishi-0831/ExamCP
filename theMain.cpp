@@ -14,13 +14,23 @@ namespace
 	int crrTime;
 	int prevTime;
 	DrawBezier drawBezier;
+	enum GameState
+	{
+		TITLE,
+		PLAY,
+		GAMEOVER
+	};
+	GameState gameState;
+	Stage* stage;
 }
 
 std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター
 std::vector<GameObject*> newObjects;
 
 float gDeltaTime = 0.0f;//フレーム間の時間差
-
+void UpdatePlay();
+void UpdateTitle();
+void UpdateGameOver();
 void DxInit()
 {
 	ChangeWindowMode(true);
@@ -57,7 +67,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	crrTime = GetNowCount();
 	prevTime = GetNowCount();
 	
-	Stage* stage = new Stage();
+	gameState = GameState::PLAY;
+	//Stage* stage = new Stage();
 	SetHookWinProc([](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT /*CALLBACK*/
 		{
 			// DxLibとImGuiのウィンドウプロシージャを両立させる
@@ -86,6 +97,19 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		float deltaTime = (crrTime - prevTime) / 1000.0f;
 		gDeltaTime = deltaTime;
 		prevTime = crrTime;
+
+		switch (gameState)
+		{
+		case GameState::TITLE:
+				UpdateTitle();
+				break;
+		case GameState::PLAY:
+			UpdatePlay();
+			break;
+		case GameState::GAMEOVER:
+			UpdateGameOver();
+			break;
+		}
 #if 0
 		//ここにやりたい処理を書く(ここから)
 		if (newObjects.size() > 0)
@@ -108,7 +132,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			obj->Draw();
 		}
-#endif
+
 		
 		drawBezier.Update();
 		drawBezier.Draw();
@@ -138,8 +162,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}
+#endif
 		//ここにやりたい処理を書く(ここまで)
+		ImGui::EndFrame();
+		ImGui::Render();
+		ImGui_ImplDXlib_RenderDrawData();
 
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 		ScreenFlip();
 		WaitTimer(16);
 		if (ProcessMessage() == -1)
@@ -151,4 +184,83 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	ImGui::DestroyContext();
 	DxLib_End();
 	return 0;
+}
+
+void UpdateTitle()
+{
+	static int hImage = LoadGraph("Assets/title.png");
+	DrawGraph(0, 0, hImage, TRUE);
+	if (Input::IsKeyDown(KEY_INPUT_SPACE))
+	{
+		gameState = GameState::PLAY;
+		stage = new Stage();
+	}
+}
+
+void UpdatePlay()
+{
+#if 0
+	//ここにやりたい処理を書く(ここから)
+	if (newObjects.size() > 0)
+	{
+		for (auto& obj : newObjects)
+		{
+			gameObjects.push_back(obj); //新しいゲームオブジェクトを追加
+		}
+		newObjects.clear();
+	}
+
+	//gameObjectsの更新
+	for (auto& obj : gameObjects)
+	{
+		obj->Update();
+	}
+
+	//gameObjectsの描画
+	for (auto& obj : gameObjects)
+	{
+		obj->Draw();
+	}
+#endif
+
+	drawBezier.Update();
+	drawBezier.Draw();
+
+
+
+	if (Input::IsKeyDown(KEY_INPUT_SPACE))
+	{
+		gameState = GameState::GAMEOVER;
+		delete stage;
+	}
+	for (auto it = gameObjects.begin(); it != gameObjects.end();)
+	{
+		if (!(*it)->IsAlive()) //生きていないオブジェクトを削除
+		{
+			delete* it;
+			it = gameObjects.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	
+}
+
+void UpdateGameOver()
+{
+	static int hImage = LoadGraph("Assets/gameOver.png");
+	DrawGraph(0, 0, hImage, TRUE);
+	if (Input::IsKeyDown(KEY_INPUT_SPACE))
+	{
+		gameState = GameState::TITLE;
+	}
+}
+
+void TransitionGameOver()
+{
+	delete stage;
+	gameState = GameState::GAMEOVER;
 }

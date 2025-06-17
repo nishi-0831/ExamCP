@@ -53,19 +53,14 @@ namespace
 	
 	const float targetInterval = 2.0f;
 	float targetTimer = 0.0f;
-	Point p1;
-	const float LEN = 10.0f;
-
-	const float lTimer = 0.0f;
-
-	float drag = 0;
-	float spring = 2.0f;
-		
+	;
+	
+	const float assaultInterval = 3.0f;
+	float assaultTimer = 0.0f;
 }
 
 Army::Army()
 {
-	p1 = { 10,0 };
 	for (int i = 0; i < 9; i++)
 	{
 		int col = i % 3 + 1;
@@ -107,7 +102,7 @@ Army::Army()
 			type = ETYPE::ZAKO;
 			break;
 		}
-		//enemys_[i] = new Enemy(i, type);
+		
 		enemys_[i] = new Enemy(i, enemyType[row]);
 		enemys_[i]->SetID(i);
 		enemys_[i]->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
@@ -134,32 +129,16 @@ void Army::Update()
 	rect_.x += dt * speed_ * dir_;
 	rect_.width += rect_.x;
 
-	targetTimer += Time::DeltaTime();
-	if (targetTimer >= targetInterval)
+	//“ËŒ‚
+	assaultTimer += GetDeltaTime();
+	if (assaultTimer >= assaultInterval)
 	{
-		idx = ++idx % table.size();
-		targetTimer = 0;
+		//PointF playerPos = QueryPlayerPos();
+		PointF playerPos;//‰¼
+		PointF enePos = enemys_[rand() % ENEMY_NUM]->GetPosF();//“ËŒ‚‚·‚éEnemy
+
+
 	}
-
-
-	degree++;
-	double radian = M_PI * degree / 180;
-	
-	Point target = table[idx];
-	static float posX = 0;
-	static float posY = 0;
-	static PointF p1 = { 0,0 };
-
-	p1 += (PointF{ (float)target.x,(float)target.y } - PointF{ posX, posY }) * spring * Time::DeltaTime();
-	p1 -= p1 * drag * Time::DeltaTime();
-
-	posX += p1.x * Time::DeltaTime();
-	posY += p1.y * Time::DeltaTime();
-	
-	DrawCircle(posX, posY, radius, GetColor(122, 122, 122), FALSE);
-#if 0
-	
-#endif
 }
 
 void Army::Draw()

@@ -2,6 +2,7 @@
 #include "Time.h"
 #include <algorithm>
 #include <cmath>
+
 Lerp::Lerp() : type_(BezierType::Linear),autoUpdate_(true),duration_(1.0f),timer_(0.0f),t_(0.0f)
 {
 	SetLinear(PointF(0, 0), PointF(0, 0));
@@ -38,11 +39,13 @@ Lerp::~Lerp()
 }
 void Lerp::Init()
 {
-	isReverse_ = false;
+	loopMode_ = LoopMode::Once;
+	dir_ = 1;
 }
+
 void Lerp::SetLinear(PointF start, PointF end)
 {
-	Init();
+	//Init();
 	type_ = BezierType::Linear;
 	controlPoints_.resize(2);
 	controlPoints_[0] = start;
@@ -50,7 +53,7 @@ void Lerp::SetLinear(PointF start, PointF end)
 }
 void Lerp::SetQuadratic(PointF start, PointF control, PointF end)
 {
-	Init();
+	//Init();
 	type_ = BezierType::Quadratic;
 	controlPoints_.resize(3);
 	controlPoints_[0] = start;
@@ -59,7 +62,7 @@ void Lerp::SetQuadratic(PointF start, PointF control, PointF end)
 }
 void Lerp::SetCubic(PointF start, PointF control1, PointF control2, PointF end)
 {
-	Init();
+	//Init();
 	type_ = BezierType::Cubic;
 	controlPoints_.resize(4);
 	controlPoints_[0] = start;
@@ -75,56 +78,88 @@ void Lerp::SetAutoUpdate(bool autoUpdate)
 {
 	autoUpdate_ = autoUpdate;
 }
-void Lerp::operator+=(const float& rhs)
+void Lerp::SetLoopMode(LoopMode mode)
 {
-	if(isReverse_)
+	loopMode_ = mode;
+}
+void Lerp::SetStart(PointF start)
+{
+	if (controlPoints_.size() > 0)
 	{
-		timer_ -= rhs;
-	}
-	else
-	{
-		timer_ += rhs;
+		controlPoints_[0] = start;
 	}
 }
-void Lerp::operator-=(const float& rhs)
+void Lerp::SetEnd(PointF end)
 {
-	*this += -(Time::DeltaTime());
+	int typeSize = (int)type_;
+	controlPoints_[typeSize + 1] = end; 
+	
+}
+void Lerp::SetControl1(PointF control1)
+{
+	if (type_ != BezierType::Linear)
+	{
+		controlPoints_[1] = control1;
+	}
+}
+void Lerp::SetControl2(PointF control2)
+{
+	if (type_ != BezierType::Cubic)
+	{
+		controlPoints_[2] = control2;
+	}
+}
+void Lerp::operator+=(const float& rhs)
+{
+	timer_ += rhs;	
 }
 void Lerp::UpdateTime()
 {
 	if (timer_ > duration_)
 	{
-		if (isLoop_)
-		{
-			if (playReverse_)
-			{
-				timer_ = duration_;
-				isReverse_ = true;
-			}
-			else
-			{
-				timer_ = 0.0f;
-			}
-		}
+		OnSurpassDuration();
 	}
 	else if (timer_ < 0.0f)
 	{
-		if (isLoop_)
-		{
-			if (playReverse_)
-			{
-				timer_ = 0.0f;
-				isReverse_ = false;
-			}
-			else
-			{
-				timer_ = duration_;
-			}
-		}
+		OnSurpassZero();
 	}
 	t_ = timer_ / duration_;
-	*this += Time::DeltaTime();
+	*this += ( Time::DeltaTime() * (float)dir_ );
 }
+
+void Lerp::OnSurpassDuration()
+{
+	switch (loopMode_)
+	{
+		case LoopMode::Once:
+			timer_ = duration_;
+			break;
+		case LoopMode::Loop:
+			timer_ = 0;
+			break;
+		case LoopMode::PingPong:
+			timer_ = duration_;
+			dir_ = -1;
+			break;
+	}
+}
+void Lerp::OnSurpassZero()
+{
+	switch (loopMode_)
+	{
+	case LoopMode::Once:
+		timer_ = 0;
+		break;
+	case LoopMode::Loop:
+		timer_ = duration_;
+		break;
+	case LoopMode::PingPong:
+		timer_ = 0;
+		dir_ = 1;
+		break;
+	}
+}
+
 float Lerp::GetT() const
 {
 	return t_;
@@ -132,6 +167,10 @@ float Lerp::GetT() const
 float Lerp::GetTimer() const
 {
 	return timer_;
+}
+int Lerp::GetDir() const
+{
+	return dir_;
 }
 void Lerp::SetT(float t)
 {
@@ -141,14 +180,8 @@ void Lerp::SetT(float t)
 		timer_ = t_ * duration_;
 	}
 }
-void Lerp::SetReverse(bool flag)
-{
-	playReverse_ = flag;
-}
-void Lerp::SetLoop(bool flag)
-{
-	isLoop_ = flag;
-}
+
+
 PointF Lerp::GetLerpPos()
 {
 	return GetLerpPos(t_);
