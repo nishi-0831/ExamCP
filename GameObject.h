@@ -8,6 +8,8 @@ protected:
 	Point imageSize_;
 	int hImage_;
 	float x_,y_;
+	GameObject* parent_;
+	GameObject* child_;
 public:
 	GameObject();
 	virtual ~GameObject();

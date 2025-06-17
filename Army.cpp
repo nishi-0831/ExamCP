@@ -8,6 +8,7 @@
 #include  <math.h>
 #include "ImGui/imgui.h"
 #include "lerp.h"
+#include "Player.h"
 namespace
 {
 	const int ENEMY_COL_SIZE = 10;
@@ -137,8 +138,38 @@ void Army::Update()
 		PointF playerPos;//仮
 		PointF enePos = enemys_[rand() % ENEMY_NUM]->GetPosF();//突撃するEnemy
 
+		for (GameObject* node : gameObjects)
+		{
+			Player* player = dynamic_cast<Player*>(node);
+			if (player != nullptr)
+			{
 
+			}
+			else
+			{
+
+			}
+				
+		}
 	}
+#if 0
+	/// <summary>
+	/// クラス名でオブジェクトを探す
+	/// </summary>
+	/// <typeparam name="C">クラス</typeparam>
+	/// <returns>オブジェクトの実態（存在しなければnullptr）</returns>
+	template<class C> C* FindGameObject()
+	{
+		const std::list<GameObject*>& objs = ObjectManager::GetAllObject();
+		for (GameObject* node : objs)
+		{
+			C* obj = dynamic_cast<C*>(node);
+			if (obj != nullptr)
+				return obj;
+		}
+		return nullptr;
+	}
+#endif
 }
 
 void Army::Draw()
