@@ -72,6 +72,9 @@ public:
 	//tの設定
 	void SetT(float t);
 
+	//端に到達したか
+	//bool OnSurpass();
+
 	//現在のt値での補間位置
 	PointF GetLerpPos();
 
@@ -84,5 +87,6 @@ public:
 	//3次ベジェ曲線の計算
 	PointF CalculateCubic(float t);
 
+	void Reset();
 };
 

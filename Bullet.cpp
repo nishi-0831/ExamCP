@@ -43,8 +43,8 @@ Bullet::Bullet(Shooter shooter) : Bullet()
 	{
 		speed_ = 250.0f;
 		isFired_ = true;
-		//ENE_HImage = LoadGraph("Assets/ebeams.png");//“G‚Ì’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
-		//hImage_ = LoadGraph("Assets/ebeams.png");
+		dir_.x = 0.0f;
+		dir_.y = 1.0f;
 		hImage_ = ENE_HImage;
 	}
 	else if (shooter == Shooter::PLAYER)
@@ -52,6 +52,8 @@ Bullet::Bullet(Shooter shooter) : Bullet()
 		speed_ = BULLET_INIT_SPEED;
 		isFired_ = true;
 		hImage_ = LoadGraph(BULLET_IMAGE_PATH.c_str());//’e‚Ì‰æ‘œ‚ğ“Ç‚İ‚Ş
+		dir_.x = 0.0f;
+		dir_.y = -1.0f;
 		assert(!(hImage_ == -1));
 	}
 	else
@@ -69,6 +71,12 @@ Bullet::Bullet(float x, float y, Shooter shooter)
 	y_ = y;
 }
 
+Bullet::Bullet(float x, float y, Shooter shooter, PointF dir)
+	:Bullet(x,y,shooter)
+{
+	dir_ = dir;
+}
+
 Bullet::~Bullet()
 {
 }
@@ -78,16 +86,24 @@ void Bullet::Update()
 	if (isFired_)
 	{
 		float dt = GetDeltaTime();
+#if 0
 		if (shooter_ == Shooter::PLAYER)
 		{
-			y_ -= (speed_ * dt);//’e‚ÌˆÚ“®
+			y_ += (speed_ * dt * dir_.y);//’e‚ÌˆÚ“®
 		}
 		else if (shooter_ == Shooter::ENEMY)
 		{
 			//“G‚Ì’e‚Í‰º‚©‚çã‚ÉˆÚ“®
 			y_ += (speed_ * dt);//’e‚ÌˆÚ“®
 		}
+#endif
+		x_ += (speed_ * dt * dir_.x);
+		y_ += (speed_ * dt * dir_.y);
 		if (y_ < 0 - imageSize_.y || y_ > WIN_HEIGHT)
+		{
+			isFired_ = false;
+		}
+		if (x_ < 0 - imageSize_.x || x_ > WIN_WIDTH)
 		{
 			isFired_ = false;
 		}
@@ -114,5 +130,10 @@ void Bullet::SetPos(float x, float y)
 {
 	x_ = x;
 	y_ = y;
+}
+
+void Bullet::SetDir(PointF dir)
+{
+	dir_ = dir;
 }
 

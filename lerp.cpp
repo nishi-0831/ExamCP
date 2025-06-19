@@ -3,21 +3,21 @@
 #include <algorithm>
 #include <cmath>
 
-Lerp::Lerp() : type_(BezierType::Linear),autoUpdate_(true),duration_(1.0f),timer_(0.0f),t_(0.0f)
+Lerp::Lerp() : type_(BezierType::Linear),autoUpdate_(true),duration_(1.0f),timer_(0.0f),t_(0.0f),dir_(1)
 {
 	SetLinear(PointF(0, 0), PointF(0, 0));
 	/*controlPoints_.resize(2);
 	controlPoints_[0] = PointF(0, 0);
 	controlPoints_[1] = PointF(0, 0);*/
 }
-Lerp::Lerp(PointF start, PointF end, float duration) : type_(BezierType::Linear),autoUpdate_(true),duration_(duration), timer_(0.0f), t_(0.0f)
+Lerp::Lerp(PointF start, PointF end, float duration) : type_(BezierType::Linear),autoUpdate_(true),duration_(duration), timer_(0.0f), t_(0.0f), dir_(1)
 {
 	SetLinear(start, end);
 	/*controlPoints_.resize(2);
 	controlPoints_[0] = start;
 	controlPoints_[1] = end;*/
 }
-Lerp::Lerp(PointF start, PointF control, PointF end, float duration) : type_(BezierType::Quadratic), autoUpdate_(true), duration_(duration), timer_(0.0f), t_(0.0f)
+Lerp::Lerp(PointF start, PointF control, PointF end, float duration) : type_(BezierType::Quadratic), autoUpdate_(true), duration_(duration), timer_(0.0f), t_(0.0f), dir_(1)
 {
 	SetQuadratic(start, control, end);
 	/*controlPoints_.resize(3);
@@ -25,7 +25,7 @@ Lerp::Lerp(PointF start, PointF control, PointF end, float duration) : type_(Bez
 	controlPoints_[1] = control;
 	controlPoints_[2] = end;*/
 }
-Lerp::Lerp(PointF start, PointF control1, PointF control2, PointF end, float duration) : type_(BezierType::Cubic), autoUpdate_(true), duration_(duration), timer_(0.0f), t_(0.0f)
+Lerp::Lerp(PointF start, PointF control1, PointF control2, PointF end, float duration) : type_(BezierType::Cubic), autoUpdate_(true), duration_(duration), timer_(0.0f), t_(0.0f), dir_(1)
 {
 	SetCubic(start, control1, control2, end);
 	/*controlPoints_.resize(4);
@@ -230,4 +230,10 @@ PointF Lerp::CalculateCubic(float t)
 		+ std::pow(t, 3.0f) * controlPoints_[3];
 
 	return result;
+}
+
+void Lerp::Reset()
+{
+	t_ = 0.0f;
+	timer_ = 0.0f;
 }

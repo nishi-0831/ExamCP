@@ -68,7 +68,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	prevTime = GetNowCount();
 	
 	gameState = GameState::PLAY;
-	//Stage* stage = new Stage();
+	Stage* stage = new Stage();
 	SetHookWinProc([](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT /*CALLBACK*/
 		{
 			// DxLibとImGuiのウィンドウプロシージャを両立させる
@@ -134,8 +134,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 
 		
-		drawBezier.Update();
-		drawBezier.Draw();
+		//drawBezier.Update();
+		//drawBezier.Draw();
 		
 
 		
@@ -153,15 +153,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			}
 		}
 		
-		ImGui::EndFrame();
-		ImGui::Render();
-		ImGui_ImplDXlib_RenderDrawData();
-
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-		}
+		
 #endif
 		//ここにやりたい処理を書く(ここまで)
 		ImGui::EndFrame();
@@ -193,13 +185,13 @@ void UpdateTitle()
 	if (Input::IsKeyDown(KEY_INPUT_SPACE))
 	{
 		gameState = GameState::PLAY;
-		stage = new Stage();
+		//stage = new Stage();
 	}
 }
 
 void UpdatePlay()
 {
-#if 0
+#if 1
 	//ここにやりたい処理を書く(ここから)
 	if (newObjects.size() > 0)
 	{
@@ -223,8 +215,7 @@ void UpdatePlay()
 	}
 #endif
 
-	drawBezier.Update();
-	drawBezier.Draw();
+	
 
 
 

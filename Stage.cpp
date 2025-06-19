@@ -22,6 +22,7 @@ Stage::Stage()
 	AddGameObject(this);
 	army = new Army();
 	AddGameObject(army);
+	enemy_ = army->enemys_;
 	player_ = new Player();
 #if test
 	enemy_ = std::vector<Enemy*>(ENEMY_NUM);

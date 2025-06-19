@@ -1,5 +1,7 @@
 #pragma once
 #include <math.h>
+#include <string>
+#include <unordered_map>
 #define test 0
 //無名空間にあるのは後から外部ファイルで書き換えることが多い
 
@@ -29,7 +31,14 @@ namespace
 #endif
 }
 extern float gDeltaTime;
-
+enum class Instruction
+{
+	STANDBY,
+	MOVE,
+	ATTACK,
+	WITHDRAWAL,
+	INSTRUCTIONMAX
+};
 enum Shooter
 {
 	PLAYER,
@@ -223,6 +232,7 @@ struct PointF
 		ret.y = lhs.y - rhs.y;
 		return ret;
 	}
+
 #endif
 struct Rect
 {
