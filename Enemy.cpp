@@ -6,35 +6,46 @@
 #include <functional>
 #include <string>
 #include "Animation2D.h"
-
+#include "Bullet.h"
+#include "State.h"
+#include "Lerp.h"
+#include "Time.h"
+#include <cmath>
+#include "Army.h"
+#include "Player.h"
 namespace
 {
-	
+#if test
 	const int ENEMY_MARGIN_X = ENEMY_IMAGE_WIDTH / 2;
 	const int ENEMY_MARGIN_Y = ENEMY_IMAGE_HEIGHT / 2;
 	
-	const int ENEMY_COL_SIZE = 10;
-	const int ENEMY_ROW_SIZE = 7;
-
+	//const int ENEMY_COL_SIZE = 10;
+	//const int ENEMY_ROW_SIZE = 7;
+	
 	const float ENEMY_INIT_SPEED = 100.0f; //初期移動速度
 	const float ENEMY_INIT_X = 100.0f;//敵の初期X座標
 	const float ENEMY_INIT_Y = 100.0f;//敵の初期Y座標
 
-	const int LEFT_END = 0;
-	const int RIGHT_END = WIN_WIDTH;
-
+#endif	
+	//攻撃後の隙
+	const float attackWaitTime = 1.0f;
 	enum MoveDir
 	{
 		left = -1,
 		right = 1
 	};
+	PointF targetPos;
+	std::weak_ptr<Army> army;
+	std::weak_ptr<Player> player;
+	float alignY = 150.0f;
 }
 
 Enemy::Enemy(int id, ETYPE type)
-	: GameObject(), hImage_(-1),speed_(0), ID_(id),type_(type),dir_(1)
+	: GameObject(), speed_(0), ID_(id),type_(type),dir_(1)
 {
+	timer_ = 0.0f;
 	imageSize_ = { ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
-	std::string imagePath[MAX_ETYPE] =
+	std::string imagePath[(int)ETYPE::MAX_ETYPE] =
 	{
 		"Assets\\tiny_ship10.png", //ZAKO
 		"Assets\\tiny_ship18.png",//MID
@@ -42,92 +53,131 @@ Enemy::Enemy(int id, ETYPE type)
 		"Assets\\tiny_ship9.png",//BOSS
 	};
 
-	hImage_ = LoadGraph(imagePath[type_].c_str());
+	hImage_ = LoadGraph(imagePath[(int)type_].c_str());
 	
 	if (hImage_ == -1)
 	{
 		//エラーを返してゲーム終了
 	}
-	x_ = ENEMY_INIT_X;
+
+	/*x_ = ENEMY_INIT_X;
 	y_ = ENEMY_INIT_Y;
-	speed_ = ENEMY_INIT_SPEED;
-	AddGameObject(this);
-	//this->effect = new Animation2D(x_,y_);
+	speed_ = ENEMY_INIT_SPEED;*/
+	//AddGameObject(this);
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
+
+	shootOnce = false;
+	lerp_ = new Lerp();
+	eStates_ = {
+		{Instruction::STANDBY, new State()},
+		{Instruction::MOVE, new State()},
+		{Instruction::ATTACK, new State()},
+		{Instruction::WITHDRAWAL, new State()}
+	};
+
+
+	eStates_[Instruction::STANDBY]->SetInitialize([]() { });
+	eStates_[Instruction::STANDBY]->SetBehavior([]() { });
+	eStates_[Instruction::STANDBY]->SetExitCondition([]() {return true; });
+
+	eStates_[Instruction::MOVE]->SetInitialize([this]() {this->SetMoveTarget(); });
+	eStates_[Instruction::ATTACK]->SetInitialize([]() { });
+	eStates_[Instruction::WITHDRAWAL]->SetInitialize([this]() {this->SetWithdrawTarget(); });
+
+	eStates_[Instruction::MOVE]->SetBehavior([this]() {this->UpdateMove(); });
+	eStates_[Instruction::ATTACK]->SetBehavior([this]() {this->UpdateAttack(); });
+	eStates_[Instruction::WITHDRAWAL]->SetBehavior([this]() {this->UpdateWithdrawal(); });
+
+	eStates_[Instruction::MOVE]->SetExitCondition([this]() {return this->lerp_->GetT() >= 1.0f; });
+	eStates_[Instruction::ATTACK]->SetExitCondition([this]() {return this->timer_ >= attackWaitTime; });
+	eStates_[Instruction::WITHDRAWAL]->SetExitCondition([this]() {return this->lerp_->GetT() >= 1.0f; });
+
+	nowInstruction_ = Instruction::STANDBY;
+	instructions_.push(Instruction::STANDBY);
 }
-Enemy::Enemy()
-	:GameObject(), hImage_(-1),  speed_(0),dir_(1)
+Enemy::Enemy(int id, ETYPE type, float x, float y)
+	:Enemy(id,type)
 {
-	hImage_ = LoadGraph("Assets\\tiny_ship10.png");
-	if (hImage_ == -1)
-	{
-		//エラーを返してゲーム終了
-	}
-	x_ = ENEMY_INIT_X;
-	y_ = ENEMY_INIT_Y;
-	speed_ = ENEMY_INIT_SPEED;
+	timer_ = 0.0f;
+	x_ = x;
+	y_ = y;
+	
+
 }
+
 
 Enemy::~Enemy()
 {
+	
 	SetAlive(false);
-	this->effect = new Animation2D(x_, y_);
-	AddGameObject(this->effect);
-	//delete this->effect;
+	GameObject::CreateGameObject<Effect>(x_, y_);
 	if (hImage_ != -1)
 	{
 		DeleteGraph(hImage_);
 	}
+	
+		for (auto& [key, state] : eStates_) {
+			state->SetBehavior(nullptr);
+			state->SetInitialize(nullptr);
+			state->SetExitCondition(nullptr);
+		}
+	// ...既存のデストラクタ処理...
+	
 }
 
 void Enemy::Update()
 {
 	float dt = GetDeltaTime();
 	
-	x_ += speed_ * dt * dir_;
-	
-	
-	//左(場外に行ったら～～)
-	
-	//誰か一体が端に行ったら全員反転する
-	//左端は0番目、右端は末尾
-	//オブジェクトプールの場合、配列を並び替えて末尾を記憶するとか、
-	//末尾から機能が有効な奴を探索するとか
-
-	//オブジェクトプールでなく削除、追加の際に配列のサイズを変えるなら単にendで末尾でいい
-	
-	//端に行ったかはEnemy以外が判定する。全員まとめて反転させたいから。
-	//その際、具体的なデータ構造にアクセスしてると後から変更が大変なので、bool関数で返す
-
-	//軍隊クラスとかあったほういいのかもしれない
-
-	//一体ずつ端に行ったかどうか調べればいっか
+	if ((instructions_.size() <= 1 && nowInstruction_ == Instruction::STANDBY )|| instructions_.empty())
+	{
+		return;
+	}
+	else if(first == true)
+	{
+		InitState();
+		eStates_[instructions_.front()]->Initialize()();
+		first = false;
+	}
+	eStates_[instructions_.front()]->GetBehavior()();
+	if( eStates_[instructions_.front()]->GetExitCondition()() )
+	{
+		instructions_.pop();
+		if (instructions_.empty())
+		{
+			return;
+		}
+		if (!eStates_.empty())
+		{
+			InitState();
+			//if()
+			eStates_[instructions_.front()]->Initialize()();
+			nowInstruction_ = instructions_.front();
+		}
+		
+	}
 }
 
 void Enemy::Draw()
 {
-	Rect rect = GetRect();
-	//Enemyの座標の真ん中に画像表示
-	DrawExtendGraphF(rect.x, rect.y , rect.x+ rect.width, rect.y + rect.height, hImage_, TRUE);
-	DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
-	//DrawExtendGraphF(x_ - ENEMY_MARGIN_X, y_ - ENEMY_MARGIN_Y, x_ + ENEMY_MARGIN_X, y_ + ENEMY_MARGIN_Y, hImage_, TRUE);
+	GameObject::Draw();
 }
 
 bool Enemy::IsLeftEnd()
 {
-	return (x_ < LEFT_END);
+	Rect rect = GetRect();
+	return (rect.x < LEFT_END);
 }
 
 bool Enemy::IsRightEnd()
 {
 	//右(場外)にいったら～～
-	return (x_ + ENEMY_IMAGE_WIDTH > RIGHT_END);
+	Rect rect = GetRect();
+	return (rect.width > RIGHT_END);
 }
 
 void Enemy::ChangeMoveDirLeft()
 {
-	//x_ = WIN_WIDTH - ENEMY_IMAGE_WIDTH;
-	//敵が隊列の何番目で配置を決める必要がある
 	dir_ = MoveDir::left;
 }
 
@@ -135,4 +185,143 @@ void Enemy::ChangeMoveDirRight()
 {
 	//x_ = LEFT_END;
 	dir_ = MoveDir::right;
+}
+
+void Enemy::MovePosY(float y)
+{
+	y_ += y;
+}
+
+
+
+void Enemy::OnNotify(Instruction instruction)
+{
+	instructions_.push(instruction);
+}
+
+void Enemy::InitState()
+{
+	lerp_->Reset();
+	shootOnce = false;
+	for (auto obj : gameObjects)
+	{
+		player = std::dynamic_pointer_cast<Player>(obj);
+		if (auto ptr = player.lock())
+		{
+			break;
+		}
+	}
+	for (auto obj : gameObjects)
+	{
+		army = std::dynamic_pointer_cast<Army>(obj);
+		if (auto ptr = army.lock())
+		{
+			break;
+		}
+	}
+}
+
+void Enemy::SetMoveTarget()
+{
+	std::shared_ptr<Player> ptr;
+	if (ptr = player.lock())
+	{
+		PointF target = ptr->GetPosF();
+		alignY = 300.0f;
+		PointF start = GetPosF();
+
+		PointF end = PointF(target.x, target.y - alignY);
+
+		//Enemyが真ん中より右か左かで軌道を変える
+		float dir = 1.0f;
+		float controlPointAlignX = 50.0f;
+		float controlPointAlignY = 50.0f;
+
+		//startの制御点
+		PointF control1 = start;
+
+		PointF control2 = end;
+
+		//左
+		if (start.x <= WIN_WIDTH / 2)
+		{
+			dir *= -1.0f;
+		}
+
+		control1.x = std::clamp(control1.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
+		control1.y = std::clamp(control1.y + (-controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
+		control2.x = std::clamp(control2.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
+		//control2.y = std::clamp(control2.y + ( -controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
+
+
+		lerp_->SetLoopMode(LoopMode::Once);
+		lerp_->SetCubic(start, control1, control2, end);
+		lerp_->SetDuration(3.0f);
+	}
+	
+}
+
+void Enemy::SetWithdrawTarget()
+{
+	std::shared_ptr<Army> ptr;
+	if (ptr = army.lock())
+	{
+		lerp_->SetLoopMode(LoopMode::Once);
+		lerp_->SetLinear(GetPosF(), ptr->GetReturnPos(ID_));
+		lerp_->SetDuration(2.0f);
+	}
+}
+
+void Enemy::SetAttackTarget(GameObject& target)
+{
+	targetPos = target.GetPosF();
+}
+
+void Enemy::UpdateMove()
+{
+	//lerp_->SetEnd(player->GetPosF()+PointF(0.0f,-alignY));
+	lerp_->UpdateTime();
+	PointF pos = lerp_->GetLerpPos();
+	x_ = pos.x;
+	y_ = pos.y;
+}
+
+void Enemy::UpdateAttack()
+{
+	if (!shootOnce)
+	{
+		std::shared_ptr<Player> ptr;
+		if (ptr = player.lock())
+		{
+			PointF vec = ptr->GetPosF() - GetPosF();
+			float Vsize = std::sqrtf(vec.x * vec.x + vec.y * vec.y);
+			PointF dir = vec / Vsize;
+
+			BulletManager* bulletManager = BulletManager::GetInstance();
+			bulletManager->RegisterBullet(x_, y_, Shooter::ENEMY, dir);
+			/*auto bullet = CreateGameObject<Bullet>(x_, y_, Shooter::ENEMY, dir);
+			bullet->RegisterToManager();*/
+			shootOnce = true;
+		}
+		
+	}
+	timer_ += Time::DeltaTime();
+}
+
+void Enemy::UpdateWithdrawal()
+{
+	std::shared_ptr<Army> ptr;
+	if (ptr = army.lock())
+	{
+		lerp_->UpdateTime();
+		lerp_->SetEnd(ptr->GetReturnPos(ID_));
+		PointF pos = lerp_->GetLerpPos();
+		x_ = pos.x;
+		y_ = pos.y;
+	}
+}
+
+void Enemy::UpdateTargetPos()
+{
+
 }
