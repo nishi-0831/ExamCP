@@ -154,9 +154,13 @@ void Army::Shoot()
 	if (shootTimer_ >= shootInterval)
 	{
 		int idx = rand() % enemys_.size();
-
+		
 		if (auto ptr = enemys_[idx].lock())
 		{
+			if (ptr->nowInstruction_ != Instruction::STANDBY)
+			{
+				return;
+			}
 			Point point = ptr->GetPos();
 			BulletManager* bulletManager = BulletManager::GetInstance();
 			bulletManager->RegisterBullet(point.x, point.y, Shooter::ENEMY, PointF{ 0,1.0f });
