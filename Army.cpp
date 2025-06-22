@@ -79,7 +79,7 @@ Army::Army()
 	speed_ = 50.0f;
 	shootTimer_ = 0.0f;
 	//enemys_ = std::vector<Enemy*>(ENEMY_NUM);
-	enemys_.resize(ENEMY_NUM);
+	//enemys_.resize(ENEMY_NUM);
 	for (int i = 0; i < ENEMY_NUM; i++)
 	{
 		//MAX_ETYPEで割った余りはMAX_ETYPE未満になるよ
@@ -88,7 +88,7 @@ Army::Army()
 		int row = i / ENEMY_COL_SIZE;
 		int col = i % ENEMY_COL_SIZE;
 
-		ETYPE enemyType[ENEMY_ROW_SIZE] = { BOSS,KNIGHT,MID,ZAKO,ZAKO,ZAKO };
+		ETYPE enemyType[ENEMY_ROW_SIZE] = { ETYPE::BOSS,ETYPE::KNIGHT,ETYPE::MID,ETYPE::ZAKO,ETYPE::ZAKO,ETYPE::ZAKO };
 		ETYPE type;
 		switch (row)
 		{
@@ -106,9 +106,8 @@ Army::Army()
 			break;
 		}
 		
-		enemys_[i] = new Enemy(i, enemyType[row]);
-		enemys_[i]->SetID(i);
-		enemys_[i]->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
+		auto enemy = CreateGameObject<Enemy>(i, enemyType[row], rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
+		enemys_.push_back(enemy);
 	}
 }
 
@@ -119,18 +118,8 @@ Army::~Army()
 
 void Army::Update()
 {
-	//射撃
-	shootTimer_ += GetDeltaTime();
-	if (shootTimer_ >= shootInterval)
-	{
-		int idx = rand() % ENEMY_NUM;
-		if (enemys_[idx]->IsAlive())
-		{
-			Point point = enemys_[rand() % ENEMY_NUM]->GetPos();
-			AddGameObject(new Bullet(point.x, point.y, Shooter::ENEMY));
-			shootTimer_ -= shootInterval;
-		}
-	}
+	Shoot();
+	
 	IsOutOfScreen();
 	//移動
 	float dt = Time::DeltaTime();
@@ -138,13 +127,13 @@ void Army::Update()
 	rect_.width = rect_.x + ARMY_RECT_WIDTH;
 	for (auto ene : enemys_)
 	{
-		if (ene->IsAlive())
+		if(auto ptr = ene.lock())
 		{
-			if (ene->nowInstruction_ == Instruction::STANDBY)
+			if (ptr->nowInstruction_ == Instruction::STANDBY)
 			{
-				int row = ene->GetID() / ENEMY_COL_SIZE;
-				int col = ene->GetID() % ENEMY_COL_SIZE;
-				ene->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
+				int row = ptr->GetID() / ENEMY_COL_SIZE;
+				int col = ptr->GetID() % ENEMY_COL_SIZE;
+				ptr->SetPos(rect_.x + col * ENEMY_ALIGN_X, rect_.y + row * ENEMY_ALIGN_Y);
 			}
 		}
 	}
@@ -156,26 +145,29 @@ void Army::Update()
 		Assault();
 		assaultTimer = 0.0f;
 	}
-#if 0
-	/// <summary>
-	/// クラス名でオブジェクトを探す
-	/// </summary>
-	/// <typeparam name="C">クラス</typeparam>
-	/// <returns>オブジェクトの実態（存在しなければnullptr）</returns>
-	template<class C> C* FindGameObject()
-	{
-		const std::list<GameObject*>& objs = ObjectManager::GetAllObject();
-		for (GameObject* node : objs)
-		{
-			C* obj = dynamic_cast<C*>(node);
-			if (obj != nullptr)
-				return obj;
-		}
-		return nullptr;
-	}
-#endif
 }
+void Army::Shoot()
+{
+	//射撃
+	shootTimer_ += GetDeltaTime();
+	if (shootTimer_ >= shootInterval)
+	{
+		int idx = rand() % enemys_.size();
 
+		if (auto ptr = enemys_[idx].lock())
+		{
+			Point point = ptr->GetPos();
+			BulletManager* bulletManager = BulletManager::GetInstance();
+			bulletManager->RegisterBullet(point.x, point.y, Shooter::ENEMY, PointF{ 0,1.0f });
+			/*auto bullet = CreateGameObject<Bullet>(point.x, point.y, Shooter::ENEMY,PointF{0,1.0f});
+			bullet->RegisterToManager();*/
+			shootTimer_ -= shootInterval;
+		}
+		else
+		{
+		}
+	}
+}
 void Army::Draw()
 {
 #if 0
@@ -203,50 +195,56 @@ void Army::IsOutOfScreen()
 {
 	for (auto& e : enemys_)
 	{
-		if (e == nullptr)
+		if (auto ptr = e.lock())
 		{
-			continue;
-		}
-		if (e->IsAlive() == false)
-		{
-			continue;
-		}
-		int MOVEMENT = 100;
-		if (e->IsLeftEnd())
-		{
-			for (auto& ene : enemys_)
+			int MOVEMENT = 100;
+			if (ptr->IsLeftEnd())
 			{
-				dir_ = 1;
-				// ene->ChangeMoveDirRight();
-				//ene->MovePosY(MOVEMENT);	
-			}
-			return;
+				for (auto& ene : enemys_)
+				{
+					dir_ = 1;
+					// ene->ChangeMoveDirRight();
+					//ene->MovePosY(MOVEMENT);	
+				}
+				return;
 
-		}
-		if (e->IsRightEnd())
-		{
-			for (auto& ene : enemys_)
-			{
-				dir_ = -1;
-				//ene->ChangeMoveDirLeft();
-				//ene->MovePosY(MOVEMENT);
 			}
-			return;
+			if (ptr->IsRightEnd())
+			{
+				for (auto& ene : enemys_)
+				{
+					dir_ = -1;
+					//ene->ChangeMoveDirLeft();
+					//ene->MovePosY(MOVEMENT);
+				}
+				return;
+			}
 		}
 	}
 }
 
+void Army::CheckEnemys()
+{
+	auto result = std::remove_if(enemys_.begin(), enemys_.end(),
+		[](const GameObjectWeakPtr& obj) 
+		{
+			auto ptr = obj.lock();
+			return !ptr->IsAlive();
+		});
+	enemys_.erase(result, enemys_.end());
+}
+
 void Army::Assault()
 {
-	int idx = rand() % ENEMY_NUM;
-	if(!enemys_[idx]->IsAlive())
+	int idx = rand() % enemys_.size();
+
+	if (auto ptr = enemys_[idx].lock())
 	{
-		return;
+		ptr->OnNotify(Instruction::MOVE);
+		ptr->OnNotify(Instruction::ATTACK);
+		ptr->OnNotify(Instruction::WITHDRAWAL);
+		ptr->OnNotify(Instruction::STANDBY);
 	}
-	enemys_[idx]->OnNotify(Instruction::MOVE);
-	enemys_[idx]->OnNotify(Instruction::ATTACK);
-	enemys_[idx]->OnNotify(Instruction::WITHDRAWAL);
-	enemys_[idx]->OnNotify(Instruction::STANDBY);
 }
 
 PointF Army::GetReturnPos(int ID)

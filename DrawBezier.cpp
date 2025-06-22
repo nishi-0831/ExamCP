@@ -5,6 +5,8 @@
 #include "Time.h"
 #include "ImGui/imgui.h"
 #include <vector>
+
+#if 0
 namespace
 {
 	float half = WIN_WIDTH / 2;
@@ -224,3 +226,5 @@ void DrawBezier::MoveControlPos()
 		controlPos2.y = y;
 	}
 }
+
+#endif

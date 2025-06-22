@@ -2,9 +2,25 @@
 #include <math.h>
 #include <string>
 #include <unordered_map>
+#include <memory>
+#include <vector>
 #define test 0
-//無名空間にあるのは後から外部ファイルで書き換えることが多い
 
+enum GameState
+{
+	TITLE,
+	PLAY,
+	GAMEOVER
+};
+class Stage;
+class GameObject;
+// グローバル配列の型定義
+using GameObjectPtr = std::shared_ptr<GameObject>;
+using GameObjectWeakPtr = std::weak_ptr<GameObject>;
+extern std::shared_ptr<Stage> stage;
+extern GameState gameState;
+extern std::vector<GameObjectPtr> gameObjects;
+extern std::vector<GameObjectPtr> newObjects;
 
 namespace
 {
@@ -19,16 +35,7 @@ namespace
 	const int ENEMY_IMAGE_HEIGHT = 48; //画像の高さ
 	const int LEFT_END = 0;
 	const int RIGHT_END = WIN_WIDTH;
-#if test
-	const int ENEMY_COL_SIZE = 10;
-	const int ENEMY_ROW_SIZE = 7;
-	const int ENEMY_NUM = ENEMY_COL_SIZE * ENEMY_ROW_SIZE;
 
-	const int ENEMY_ALIGN_X = 50;
-	const int ENEMY_ALIGN_Y = 50;
-
-	const int ARMY_MARGIN = (WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COL_SIZE)) / 2;
-#endif
 }
 extern float gDeltaTime;
 enum class Instruction
@@ -39,12 +46,13 @@ enum class Instruction
 	WITHDRAWAL,
 	INSTRUCTIONMAX
 };
-enum Shooter
+
+enum class Shooter
 {
 	PLAYER,
 	ENEMY,
 };
-enum ETYPE
+enum class ETYPE
 {
 	ZAKO, MID, KNIGHT, BOSS, MAX_ETYPE
 };
@@ -54,7 +62,10 @@ inline float GetDeltaTime()
 {
 	return gDeltaTime;
 }
-
+inline void TransitionGameOver()
+{
+	
+}
 struct Point
 {
 	int x;

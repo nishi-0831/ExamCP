@@ -7,25 +7,32 @@
 #include "Stage.h"
 #include "Time.h"
 #include "ImGui/imgui_impl_dxlib.hpp"
-#include "DrawBezier.h"
+#include "GameObject.h"
+#include <memory>
+class GameObject;
+class Stage;
+
 namespace
 {
 	const int BGCOLOR[3] = {0,0, 0}; // 背景色
 	int crrTime;
 	int prevTime;
-	DrawBezier drawBezier;
-	enum GameState
-	{
-		TITLE,
-		PLAY,
-		GAMEOVER
-	};
-	GameState gameState;
-	Stage* stage;
-}
 
+	
+	
+	//Stage* stage;
+}
+std::shared_ptr<Stage> stage;
+GameState gameState;
+using GameObjectPtr = std::shared_ptr<GameObject>;
+using GameObjectWeakPtr = std::weak_ptr<GameObject>;
+
+#if 0
 std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター
 std::vector<GameObject*> newObjects;
+#endif
+std::vector<GameObjectPtr> gameObjects; //ゲームオブジェクトのベクター
+std::vector<GameObjectPtr> newObjects;
 
 float gDeltaTime = 0.0f;//フレーム間の時間差
 void UpdatePlay();
@@ -68,7 +75,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	prevTime = GetNowCount();
 	
 	gameState = GameState::PLAY;
-	Stage* stage = new Stage();
+	//Stage* stage = new Stage();
+	stage = GameObject::CreateGameObject<Stage>();
 	SetHookWinProc([](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT /*CALLBACK*/
 		{
 			// DxLibとImGuiのウィンドウプロシージャを両立させる
@@ -185,6 +193,15 @@ void UpdateTitle()
 	if (Input::IsKeyDown(KEY_INPUT_SPACE))
 	{
 		gameState = GameState::PLAY;
+		for (auto& obj : gameObjects) {
+			obj->SetActive(false);
+		}
+		for (auto& obj : newObjects) {
+			obj->SetActive(false);
+		}
+		gameObjects.clear();
+		newObjects.clear();
+		stage = GameObject::CreateGameObject<Stage>();
 		//stage = new Stage();
 	}
 }
@@ -193,14 +210,17 @@ void UpdatePlay()
 {
 #if 1
 	//ここにやりたい処理を書く(ここから)
-	if (newObjects.size() > 0)
+	if (!newObjects.empty())
 	{
-		for (auto& obj : newObjects)
-		{
-			gameObjects.push_back(obj); //新しいゲームオブジェクトを追加
-		}
+		gameObjects.insert(gameObjects.end(), newObjects.begin(), newObjects.end());
 		newObjects.clear();
 	}
+
+	//生きてるやつを前に詰めて、死んでるやつの先頭のイテレータを貰う
+	auto result = std::remove_if(gameObjects.begin(), gameObjects.end(),
+		[](const GameObjectPtr& obj) {return !obj->IsAlive(); });
+	//明示的に解放すべき
+	gameObjects.erase(result,gameObjects.end());
 
 	//gameObjectsの更新
 	for (auto& obj : gameObjects)
@@ -217,26 +237,6 @@ void UpdatePlay()
 
 	
 
-
-
-	if (Input::IsKeyDown(KEY_INPUT_SPACE))
-	{
-		gameState = GameState::GAMEOVER;
-		delete stage;
-	}
-	for (auto it = gameObjects.begin(); it != gameObjects.end();)
-	{
-		if (!(*it)->IsAlive()) //生きていないオブジェクトを削除
-		{
-			delete* it;
-			it = gameObjects.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
 	
 }
 
@@ -250,8 +250,3 @@ void UpdateGameOver()
 	}
 }
 
-void TransitionGameOver()
-{
-	delete stage;
-	gameState = GameState::GAMEOVER;
-}

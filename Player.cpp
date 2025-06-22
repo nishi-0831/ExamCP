@@ -5,6 +5,7 @@
 #include "Bullet.h"
 #include <algorithm>
 
+
 namespace
 {
 	const float PLAYER_INIT_SPEED = 250.0f; //初期移動速度
@@ -34,13 +35,6 @@ Player::Player()
 	x_ = PLAYER_INIT_X;
 	y_ = PLAYER_INIT_Y;
 	speed_ = PLAYER_INIT_SPEED;
-
-	for (int i = 0;i < PLAYER_BULLET_NUM;i++)
-	{
-		bullets_.push_back(new Bullet());
-		bullets_.front()->SetFired(false);
-	}
-	AddGameObject(this);
 }
 
 Player::~Player()
@@ -68,60 +62,34 @@ void Player::Update()
 	Point center = GetImageCenter();
 	x_ = std::clamp((int)x_, LEFT_END + center.x , RIGHT_END - center.x);
 	static float bulletTimer = 0.0f;
-	if (bulletTimer > 0.0f)
-	{
-		bulletTimer -= dt;
-	}
+	
+	bulletTimer += dt;
+	
 	
 	if (Input::IsKeyDown(KEY_INPUT_SPACE))
 	{
-		Shoot();
-		/*if (bulletTimer <= 0.0f)
+		if (bulletTimer > BULLET_INTERVAL)
 		{
-			new Bullet(x_ + PLAYER_IMAGE_HEIGHT / 2, y_);
-			bulletTimer = BULLET_INTERVAL;
-		}*/
+			bulletTimer = 0.0f;
+			Shoot();
+		}
 	}
-	
 }
 
 void Player::Draw()
 {
 	GameObject::Draw();
-	//Rect rect = GetRect();
-	////Playerの座標の真ん中に画像表示
-	//DrawExtendGraphF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, hImage_, TRUE);
-	//DrawBox(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, GetColor(255, 0, 0), FALSE);
 }
 
 
 void Player::Shoot()
 {
-	//for (auto& bullet : bullets_)
-	//{
-	//	if (!(bullet->IsFired()))
-	//	{
-	//		bullet->SetPos(x_ + BULLET_IMAGE_MARGIN, y_);
-	//		bullet->SetFired(true);
-	//		break;//一つ発射したらループを抜ける
-	//	}
-	//}
-	Bullet* blt = GetActiveBullet();
-	if (blt != nullptr)
-	{
-		blt->SetPos(x_, y_);
-		blt->SetFired(true);
-	}
+	BulletManager* bulletManager = BulletManager::GetInstance();
+	bulletManager->RegisterBullet(x_, y_, Shooter::PLAYER, PointF{ 0,-1.0f });
+	
+	/*bulletManager->Cleanup();
+	auto bullet = CreateGameObject<Bullet>(x_, y_, Shooter::PLAYER, PointF{0,-1.0f});
+	bullet->RegisterToManager();*/
 }
 
-Bullet* Player::GetActiveBullet()
-{
-	for (auto& bullet : bullets_)
-	{
-		if (!bullet->IsFired())
-		{
-			return bullet;
-		}
-	}
-	return nullptr;
-}
+

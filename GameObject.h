@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
 #include "global.h"
-class GameObject
+#include <utility>
+class GameObject : public std::enable_shared_from_this<GameObject>
 {
 protected:
 	bool isAlive_;
@@ -10,7 +11,17 @@ protected:
 	float x_,y_;
 	GameObject* parent_;
 	GameObject* child_;
+
+	static void AddGameObject(std::shared_ptr<GameObject> obj)
+	{
+		newObjects.push_back(obj);
+	}
+	
+
+	
 public:
+	template<typename T, typename... Args>
+	static std::shared_ptr<T> CreateGameObject(Args&&... args);
 	GameObject();
 	virtual ~GameObject();
 	virtual void Update() = 0;
@@ -23,12 +34,20 @@ public:
 	PointF GetPosF() { return PointF(x_, y_); }
 };
 
-extern std::vector<GameObject*> gameObjects; //ゲームオブジェクトのベクター
-extern std::vector<GameObject*> newObjects;
-
+template<typename T, typename... Args>
+static std::shared_ptr<T> GameObject::CreateGameObject(Args&&... args)
+{
+	auto obj = std::make_shared<T>(std::forward<Args>(args)...);
+	AddGameObject(obj);
+	return obj;
+}
+#if 0
 inline void AddGameObject(GameObject* obj)
 {
 	newObjects.push_back(obj);//ゲームオブジェクトをベクターに追加
 }
+#endif
+
+
 
 

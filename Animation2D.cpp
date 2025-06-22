@@ -87,7 +87,7 @@ void Effect::Draw()
 	
 	int frameX = index_ % column;
 	int frameY = index_ / column;
-	//DrawRectExtendGraph(rect.x, rect.y, rect.width, rect.height, frameX * imageSize_.x, frameY * imageSize_.y, imageSize_.x, imageSize_.y, hImage_, TRUE);
+	
 	DrawGraph(rect.x, rect.y, hImages[index_],TRUE);
 }
 

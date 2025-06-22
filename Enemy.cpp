@@ -35,8 +35,8 @@ namespace
 		right = 1
 	};
 	PointF targetPos;
-	Army* army;
-	Player* player;
+	std::weak_ptr<Army> army;
+	std::weak_ptr<Player> player;
 	float alignY = 150.0f;
 }
 
@@ -45,7 +45,7 @@ Enemy::Enemy(int id, ETYPE type)
 {
 	timer_ = 0.0f;
 	imageSize_ = { ENEMY_IMAGE_WIDTH, ENEMY_IMAGE_HEIGHT };
-	std::string imagePath[MAX_ETYPE] =
+	std::string imagePath[(int)ETYPE::MAX_ETYPE] =
 	{
 		"Assets\\tiny_ship10.png", //ZAKO
 		"Assets\\tiny_ship18.png",//MID
@@ -53,7 +53,7 @@ Enemy::Enemy(int id, ETYPE type)
 		"Assets\\tiny_ship9.png",//BOSS
 	};
 
-	hImage_ = LoadGraph(imagePath[type_].c_str());
+	hImage_ = LoadGraph(imagePath[(int)type_].c_str());
 	
 	if (hImage_ == -1)
 	{
@@ -63,7 +63,7 @@ Enemy::Enemy(int id, ETYPE type)
 	/*x_ = ENEMY_INIT_X;
 	y_ = ENEMY_INIT_Y;
 	speed_ = ENEMY_INIT_SPEED;*/
-	AddGameObject(this);
+	//AddGameObject(this);
 	//idとtypeを指定されなかったときの処理をここに書かねば(省略。書かない)
 
 	shootOnce = false;
@@ -108,9 +108,9 @@ Enemy::Enemy(int id, ETYPE type, float x, float y)
 
 Enemy::~Enemy()
 {
-	this->effect = new Effect(x_, y_);
+	
 	SetAlive(false);
-	AddGameObject(this->effect);
+	GameObject::CreateGameObject<Effect>(x_, y_);
 	if (hImage_ != -1)
 	{
 		DeleteGraph(hImage_);
@@ -205,62 +205,71 @@ void Enemy::InitState()
 	shootOnce = false;
 	for (auto obj : gameObjects)
 	{
-		if (player != nullptr)
+		player = std::dynamic_pointer_cast<Player>(obj);
+		if (auto ptr = player.lock())
 		{
 			break;
 		}
-		player = dynamic_cast<Player*>(obj);
 	}
 	for (auto obj : gameObjects)
 	{
-		if (army != nullptr)
+		army = std::dynamic_pointer_cast<Army>(obj);
+		if (auto ptr = army.lock())
 		{
 			break;
 		}
-		army = dynamic_cast<Army*>(obj);
 	}
 }
 
 void Enemy::SetMoveTarget()
 {
-	PointF target = player->GetPosF();
-	alignY = 300.0f;
-	PointF start = GetPosF();
-	
-	PointF end = PointF(target.x, target.y - alignY);
-
-	//Enemyが真ん中より右か左かで軌道を変える
-	float dir = 1.0f;
-	float controlPointAlignX = 50.0f;
-	float controlPointAlignY = 50.0f;
-
-	//startの制御点
-	PointF control1 = start;
-
-	PointF control2 = end;
-
-	//左
-	if (start.x <= WIN_WIDTH / 2)
+	std::shared_ptr<Player> ptr;
+	if (ptr = player.lock())
 	{
-		dir *= -1.0f;
+		PointF target = ptr->GetPosF();
+		alignY = 300.0f;
+		PointF start = GetPosF();
+
+		PointF end = PointF(target.x, target.y - alignY);
+
+		//Enemyが真ん中より右か左かで軌道を変える
+		float dir = 1.0f;
+		float controlPointAlignX = 50.0f;
+		float controlPointAlignY = 50.0f;
+
+		//startの制御点
+		PointF control1 = start;
+
+		PointF control2 = end;
+
+		//左
+		if (start.x <= WIN_WIDTH / 2)
+		{
+			dir *= -1.0f;
+		}
+
+		control1.x = std::clamp(control1.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
+		control1.y = std::clamp(control1.y + (-controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
+		control2.x = std::clamp(control2.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
+		//control2.y = std::clamp(control2.y + ( -controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
+
+
+		lerp_->SetLoopMode(LoopMode::Once);
+		lerp_->SetCubic(start, control1, control2, end);
+		lerp_->SetDuration(3.0f);
 	}
-
-	control1.x = std::clamp(control1.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
-	control1.y = std::clamp(control1.y + (-controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
-	control2.x = std::clamp(control2.x + (dir * controlPointAlignX), 0.0f, (float)WIN_WIDTH);
-	//control2.y = std::clamp(control2.y + ( -controlPointAlignY), 0.0f, (float)WIN_HEIGHT);
-
-
-	lerp_->SetLoopMode(LoopMode::Once);
-	lerp_->SetCubic(start, control1, control2, end);
-	lerp_->SetDuration(3.0f);
+	
 }
 
 void Enemy::SetWithdrawTarget()
 {
-	lerp_->SetLoopMode(LoopMode::Once);
-	lerp_->SetLinear(GetPosF(), army->GetReturnPos(ID_));
-	lerp_->SetDuration(2.0f);
+	std::shared_ptr<Army> ptr;
+	if (ptr = army.lock())
+	{
+		lerp_->SetLoopMode(LoopMode::Once);
+		lerp_->SetLinear(GetPosF(), ptr->GetReturnPos(ID_));
+		lerp_->SetDuration(2.0f);
+	}
 }
 
 void Enemy::SetAttackTarget(GameObject& target)
@@ -281,22 +290,35 @@ void Enemy::UpdateAttack()
 {
 	if (!shootOnce)
 	{
-		PointF vec = player->GetPosF() - GetPosF();
-		float Vsize = std::sqrtf(vec.x * vec.x + vec.y * vec.y);
-		PointF dir = vec / Vsize;
-		AddGameObject(new Bullet(x_, y_, Shooter::ENEMY, dir));
-		shootOnce = true;
+		std::shared_ptr<Player> ptr;
+		if (ptr = player.lock())
+		{
+			PointF vec = ptr->GetPosF() - GetPosF();
+			float Vsize = std::sqrtf(vec.x * vec.x + vec.y * vec.y);
+			PointF dir = vec / Vsize;
+
+			BulletManager* bulletManager = BulletManager::GetInstance();
+			bulletManager->RegisterBullet(x_, y_, Shooter::ENEMY, dir);
+			/*auto bullet = CreateGameObject<Bullet>(x_, y_, Shooter::ENEMY, dir);
+			bullet->RegisterToManager();*/
+			shootOnce = true;
+		}
+		
 	}
 	timer_ += Time::DeltaTime();
 }
 
 void Enemy::UpdateWithdrawal()
 {
-	lerp_->UpdateTime();
-	lerp_->SetEnd(army->GetReturnPos(ID_));
-	PointF pos = lerp_->GetLerpPos();
-	x_ = pos.x;
-	y_ = pos.y;
+	std::shared_ptr<Army> ptr;
+	if (ptr = army.lock())
+	{
+		lerp_->UpdateTime();
+		lerp_->SetEnd(ptr->GetReturnPos(ID_));
+		PointF pos = lerp_->GetLerpPos();
+		x_ = pos.x;
+		y_ = pos.y;
+	}
 }
 
 void Enemy::UpdateTargetPos()

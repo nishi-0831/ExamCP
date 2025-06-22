@@ -8,22 +8,25 @@
 #include <cmath>
 #include "ImGui/Imgui.h"
 #include "Army.h"
-
+#include <memory>
 namespace
 {
 	//stage.cpp以外では参照できなくなるよ
 	//const float shootInterval = 0.5f;
-	Army* army;
+	std::weak_ptr<Army> army;
 }
 
 Stage::Stage()
-	: GameObject() , player_(nullptr)
+	: GameObject()
 {
-	AddGameObject(this);
-	army = new Army();
-	AddGameObject(army);
-	enemy_ = army->enemys_;
-	player_ = new Player();
+	//shared_from_this()->CreateGameObject<Stage>();
+	army = CreateGameObject<Army>();
+	if (auto ptr = army.lock())
+	{
+		enemy_ = ptr->enemys_;
+	}
+	
+	player_ = CreateGameObject<Player>();
 #if test
 	enemy_ = std::vector<Enemy*>(ENEMY_NUM);
 	for (int i = 0; i < ENEMY_NUM; i++)
@@ -67,14 +70,86 @@ Stage::~Stage()
 void Stage::Update()
 {
 #if test
-	shootTimer_ += GetDeltaTime();
-	if (shootTimer_ >= shootInterval)
+	BulletManager* bulletManager = BulletManager::GetInstance();
+
+	bulletManager->CleanUp();
+
+	for (const auto& bulletWeak : *bulletManager)
 	{
-		Point point = enemy_[rand() % ENEMY_NUM]->GetPos();
-		AddGameObject(new Bullet(point.x, point.y, Shooter::ENEMY));
-		shootTimer_ -= shootInterval;
+		if (auto bullet = bulletWeak.lock())
+		{
+			if (!bullet->IsFired())
+			{
+				continue;
+			}
+			if (bullet->GetShooter() == Shooter::ENEMY)
+			{
+				if (auto playerPtr = player_.lock())
+				{
+					if (IntersectRect(bullet->GetRect(), playerPtr->GetRect()))
+					{
+						//プレイヤーが撃破される
+						gameState = GameState::GAMEOVER;
+					}
+				}
+
+			}
+			else
+			{
+				for (const auto& enemyWeak : enemy_)
+				{
+					if (auto enemy = enemyWeak.lock())
+					{
+						if (IntersectRect(bullet->GetRect(), enemy->GetRect()))
+						{
+							enemy->SetAlive(false);
+							bullet->SetFired(false);
+						}
+					}
+				}
+			}
+		}
 	}
 #endif
+
+	auto* bulletManager = BulletManager::GetInstance();
+
+	// 無効な弾の削除
+	bulletManager->Cleanup();
+
+	// 当たり判定チェック
+	for (const auto& bulletWeak : bulletManager->GetAllBullets()) {
+		if (auto bullet = bulletWeak.lock()) {
+			if (bullet->IsAlive() && bullet->IsFired()) {
+				if (bullet->GetShooter() == Shooter::ENEMY) {
+					// プレイヤーとの当たり判定
+					if (auto player = player_.lock()) {
+						if (IntersectRect(bullet->GetRect(), player->GetRect())) {
+							// 衝突処理
+							bullet->SetActive(false);
+							// プレイヤーへのダメージ処理
+ 							gameState = GameState::GAMEOVER;
+						}
+					}
+				}
+				else {
+					// 敵との当たり判定
+					for (const auto& enemyWeak : enemy_) {
+						if (auto enemy = enemyWeak.lock()) {
+							if (enemy->IsAlive() && IntersectRect(bullet->GetRect(), enemy->GetRect())) {
+								// 衝突処理
+								bullet->SetActive(false);
+								enemy->SetActive(false);
+								// スコア加算など
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#if 0
 	for(auto eneItr = enemy_.begin();eneItr != enemy_.end();)
 	{
 		if ((*eneItr) == nullptr)
@@ -108,6 +183,7 @@ void Stage::Update()
 			eneItr = enemy_.erase(eneItr);
 		}
 	}
+#endif
 #if test
  	for (auto& e : enemy_)
 	{
@@ -148,6 +224,11 @@ void Stage::Update()
 
 void Stage::Draw()
 {	
+}
+
+void Stage::GameOver()
+{
+
 }
 
 PointF Stage::GetPlayerPos()

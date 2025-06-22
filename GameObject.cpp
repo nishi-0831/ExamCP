@@ -29,5 +29,5 @@ void GameObject::Draw()
 
 	Rect rect = GetRect();
 	DrawExtendGraphF(rect.x,rect.y, rect.width, rect.height, hImage_, TRUE);
-	DrawBox(rect.x, rect.y, rect.width, rect.height, GetColor(255, 0, 0), FALSE);
+	//DrawBox(rect.x, rect.y, rect.width, rect.height, GetColor(255, 0, 0), FALSE);
 }

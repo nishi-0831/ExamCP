@@ -17,10 +17,14 @@ public:
 	void Update() override;
 	void Draw() override;
 	void IsOutOfScreen();
+	void CheckEnemys();
 	void Assault();
+	void Shoot();
 	void Notify(GameObject& target,Instruction instruction);
 	//void NotifyDynamic(std::function<const PointF&()>& positionGetter,Instruction instruction);
-	std::vector<Enemy*> enemys_;
+	//std::vector<Enemy*> enemys_;
+	//std::vector<GameObjectWeakPtr> enemys_;
+	std::vector<std::weak_ptr<Enemy>> enemys_;
 	PointF GetReturnPos(int ID);
 protected:
 private:
