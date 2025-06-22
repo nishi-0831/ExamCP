@@ -74,9 +74,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	crrTime = GetNowCount();
 	prevTime = GetNowCount();
 	
-	gameState = GameState::PLAY;
+	gameState = GameState::TITLE;
 	//Stage* stage = new Stage();
-	stage = GameObject::CreateGameObject<Stage>();
+	
 	SetHookWinProc([](HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT /*CALLBACK*/
 		{
 			// DxLibとImGuiのウィンドウプロシージャを両立させる
@@ -192,17 +192,25 @@ void UpdateTitle()
 	DrawGraph(0, 0, hImage, TRUE);
 	if (Input::IsKeyDown(KEY_INPUT_SPACE))
 	{
-		gameState = GameState::PLAY;
-		for (auto& obj : gameObjects) {
-			obj->SetActive(false);
+		
+		if (!gameObjects.empty())
+		{
+			for (auto& obj : gameObjects) {
+				obj->SetActive(false);
+				gameObjects.clear();
+			}
 		}
-		for (auto& obj : newObjects) {
-			obj->SetActive(false);
+		if (!newObjects.empty())
+		{
+			for (auto& obj : newObjects) {
+				obj->SetActive(false);
+			}
+
+			newObjects.clear();
 		}
-		gameObjects.clear();
-		newObjects.clear();
 		stage = GameObject::CreateGameObject<Stage>();
-		//stage = new Stage();
+
+		gameState = GameState::PLAY;
 	}
 }
 
